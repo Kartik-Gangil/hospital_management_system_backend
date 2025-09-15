@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum gender {
+  Male
+  Female
+  Other
+}
+
+enum bloodGroup {
+  O_NEG  @map("O-")
+  O_POS  @map("O+")
+  A_POS  @map("A+")
+  A_NEG  @map("A-")
+  B_POS  @map("B+")
+  B_NEG  @map("B-")
+  AB_POS @map("AB+")
+  AB_NEG @map("AB-")
+}
+
+model Patient {
+  id             Int           @id @default(autoincrement())
+  FullName       String
+  Gender         gender
+  Phone          String
+  DOB            DateTime      @db.Date
+  Reffered_by    String?
+  Age            Int
+  Insurance      String?
+  Address        String
+  City           String
+  State          String
+  created_at     DateTime      @default(now())
+  Blood_group    bloodGroup
+  Emgr_name      String
+  Emgr_mobile_no String
+  document       String[]
+  Complaint      Complaint[]
+  Appointment    Appointment[]
+  History        History[]
+}
+
+model Complaint {
+  id      String  @id @default(cuid())
+  P_id    Int
+  patient Patient @relation(fields: [P_id], references: [id])
+  D_id    String
+  message String
+}
+
+model Appointment {
+  id               String   @id @default(cuid())
+  P_id             Int
+  patient          Patient  @relation(fields: [P_id], references: [id])
+  D_id             String
+  Appointment_date DateTime @db.Date
+  complaint        String?
+  created_at       DateTime @default(now())
+}
+
+model History {
+  id                String  @id @default(cuid())
+  P_id              Int
+  patient           Patient @relation(fields: [P_id], references: [id])
+  D_id              String
+  Systemic_illness  String
+  Treatment_Histroy String
+  Dite_Histroy      String
+  Family_Histroy    String
+}

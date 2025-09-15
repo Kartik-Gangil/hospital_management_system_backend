@@ -1,0 +1,19 @@
+services:
+  doctor-DB:
+    image: postgres:17
+    container_name: doctor-db
+    environment:
+      POSTGRES_USER : doctor
+      POSTGRES_PASSWORD : doctor-db
+      POSTGRES_DB : doctordb
+    ports:
+      - "5432:5432" 
+  Patient-DB:
+    image: postgres:17
+    container_name: patient-db
+    environment:
+      POSTGRES_USER : patient
+      POSTGRES_PASSWORD : patient-db
+      POSTGRES_DB : patientdb
+    ports:
+      - "5433:5432" 
