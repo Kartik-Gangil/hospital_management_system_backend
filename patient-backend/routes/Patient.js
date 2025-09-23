@@ -5,39 +5,52 @@ const storage = require('../multerConfig');
 const multer = require('multer');
 const upload = multer({ storage })
 
-// ✅ Helper function to convert all BigInt -> String
-// const convertBigIntToString = (obj) => {
-//     if (Array.isArray(obj)) {
-//         return obj.map(convertBigIntToString);
-//     } else if (obj !== null && typeof obj === 'object') {
-//         return Object.fromEntries(
-//             Object.entries(obj).map(([key, value]) => [key, convertBigIntToString(value)])
-//         );
-//     } else if (typeof obj === 'bigint') {
-//         return obj.toString();
-//     }
-//     return obj;
-// };
-
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const data = await prisma.patient.findUnique({
             where: {
-                id
+                id: parseInt(id)
             },
             include: {
                 Complaint: true,   // saare complaints fetch hoga
                 Appointment: true, // saare appointments fetch hoga
-                Histroy: true      // saara history fetch hoga
+                History: true, // saara history fetch hoga
+                Refraction: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                    take: 1,
+                },
+                Vision: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                    take: 1,
+                },
+                Anterior: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                    take: 1,
+                },
+                Posterior: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                    take: 1,
+                },
+                Diagnosis: true,
+                Advise: true,
+                Treatment: true,
+                Medicine: true,
+                Report: true
             }
         })
         if (!data) {
             return res.status(404).json({ message: "Patient not found" });
         }
 
-        // ✅ Convert BigInt fields automatically
-        // const response = convertBigIntToString(data);
 
         return res.status(200).json(data)
     } catch (error) {

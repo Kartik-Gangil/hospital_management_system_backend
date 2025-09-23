@@ -4,21 +4,13 @@ const prisma = require('../controller/DB');
 
 
 
-// function convertBigInt(obj) {
-//     return JSON.parse(
-//         JSON.stringify(obj, (_, value) =>
-//             typeof value === "bigint" ? value.toString() : value
-//         )
-//     );
-// }
-
 
 router.post('/createAppointment', async (req, res) => {
     try {
-        const { P_id, D_id, Appointment_date, message } = req.body;
-        const  result  = await prisma.appointment.create({
+        const { P_id, D_id, message } = req.body;
+        const result = await prisma.appointment.create({
             data: {
-                P_id,
+                P_id: parseInt(P_id),
                 D_id,
                 Appointment_date: new Date(),
                 complaint: message

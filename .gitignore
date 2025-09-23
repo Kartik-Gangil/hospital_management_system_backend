@@ -1,6 +1,7 @@
 # packages
 doctor-backend/node_modules/
 patient-backend/node_modules/
+patient-backend/uploads/
 
 
 # Logs

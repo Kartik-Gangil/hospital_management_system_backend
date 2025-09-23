@@ -51,33 +51,271 @@ model Patient {
   Complaint      Complaint[]
   Appointment    Appointment[]
   History        History[]
-}
-
-model Complaint {
-  id      String  @id @default(cuid())
-  P_id    Int
-  patient Patient @relation(fields: [P_id], references: [id])
-  D_id    String
-  message String
+  Vision         Vision[]
+  Allergies      Allergies[]
+  Refraction     Refraction[]
+  Anterior       Anterior[]
+  Posterior      Posterior[]
+  Diagnosis      Diagnosis[]
+  Advise         Advise[]
+  Treatment      Treatment[]
+  Medicine       Medicine[]
+  Report         Report[]
 }
 
 model Appointment {
-  id               String   @id @default(cuid())
+  id               String       @id @default(cuid())
   P_id             Int
-  patient          Patient  @relation(fields: [P_id], references: [id])
+  patient          Patient      @relation(fields: [P_id], references: [id])
   D_id             String
-  Appointment_date DateTime @db.Date
+  Appointment_date DateTime     @db.Date
   complaint        String?
-  created_at       DateTime @default(now())
+  created_at       DateTime     @default(now())
+  Anterior         Anterior[]
+  Posterior        Posterior[]
+  Refraction       Refraction[]
+  Vision           Vision[]
+  Allergies        Allergies[]
+  History          History[]
+  Complaint        Complaint[]
+  Diagnosis        Diagnosis[]
+  Advise           Advise[]
+  Treatment        Treatment[]
+  Medicine         Medicine[]
+  Report           Report[]
+}
+
+// pre clinical schemas
+
+model Complaint {
+  id            String      @id @default(cuid())
+  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  P_id          Int
+  patient       Patient     @relation(fields: [P_id], references: [id])
+  D_id          String
+  message       String
+  appointmentId String
 }
 
 model History {
-  id                String  @id @default(cuid())
+  id                String      @id @default(cuid())
+  A_id              Appointment @relation(fields: [appointmentId], references: [id])
+  patient           Patient     @relation(fields: [P_id], references: [id])
   P_id              Int
-  patient           Patient @relation(fields: [P_id], references: [id])
   D_id              String
   Systemic_illness  String
   Treatment_Histroy String
   Dite_Histroy      String
   Family_Histroy    String
+  appointmentId     String
+}
+
+model Allergies {
+  id            Int         @id @default(autoincrement())
+  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  P_id          Patient     @relation(fields: [patientId], references: [id])
+  created_at    DateTime    @default(now())
+  allergies     String[]
+  patientId     Int
+  appointmentId String
+}
+
+model Vision {
+  id                                 Int         @id @default(autoincrement())
+  P_id                               Patient     @relation(fields: [patientId], references: [id])
+  created_at                         DateTime    @default(now())
+  A_id                               Appointment @relation(fields: [appointmentId], references: [id])
+  R_Distance_unaided                 String?
+  R_Distance_With_Pin_Hole           String?
+  R_Distance_With_CT                 String?
+  R_Distance_With_PMT                String?
+  R_Distance_with_previous_glasses   String?
+  R_Distance_with_current_subjective String?
+  R_Near_unaided                     String?
+  R_Near_with_previous_glasses       String?
+  R_Near_with_current_subjective     String?
+
+  L_Distance_unaided                 String?
+  L_Distance_With_Pin_Hole           String?
+  L_Distance_With_CT                 String?
+  L_Distance_With_PMT                String?
+  L_Distance_with_previous_glasses   String?
+  L_Distance_with_current_subjective String?
+  L_Near_unaided                     String?
+  L_Near_with_previous_glasses       String?
+  L_Near_with_current_subjective     String?
+  patientId                          Int
+  appointmentId                      String
+}
+
+model Refraction {
+  id             Int         @id @default(autoincrement())
+  P_id           Patient     @relation(fields: [patientId], references: [id])
+  created_at     DateTime    @default(now())
+  patientId      Int
+  A_id           Appointment @relation(fields: [appointmentId], references: [id])
+  refractionType String?
+
+  R_D_SPH  String?
+  R_D_CYL  String?
+  R_D_AXIS String?
+  R_D_VA   String?
+
+  R_N_SPH  String?
+  R_N_CYL  String?
+  R_N_AXIS String?
+  R_N_VA   String?
+
+  L_D_SPH  String?
+  L_D_CYL  String?
+  L_D_AXIS String?
+  L_D_VA   String?
+
+  L_N_SPH  String?
+  L_N_CYL  String?
+  L_N_AXIS String?
+  L_N_VA   String?
+
+  Glass_Type    String?
+  appointmentId String
+}
+
+// clinical
+
+model Anterior {
+  id                             Int         @id @default(autoincrement())
+  created_at                     DateTime    @default(now())
+  P_id                           Patient     @relation(fields: [patientId], references: [id])
+  A_id                           Appointment @relation(fields: [appointmentId], references: [id])
+  R_Intraocular_pressure_NCT     String?
+  R_Intraocular_pressure_Tonopen String?
+  R_Intraocular_pressure_AT      String?
+  R_Eyelids                      String?
+  R_Eyelashes                    String?
+  R_Lacrimal_punctum             String?
+  R_Orbit                        String?
+  R_Extraocular_movements        String?
+  R_Eye_position                 String?
+  R_Sclera_episclera             String?
+  R_Conjunctiva                  String?
+  R_Cornea                       String?
+  R_Anterior_chamber             String?
+  R_Angles                       String?
+  R_Iris_pupil                   String?
+  R_Lens                         String?
+  R_Lacrimal_syringing           String?
+  R_Gonioscopy                   String?
+  R_Others                       String?
+
+  L_Intraocular_pressure_NCT     String?
+  L_Intraocular_pressure_Tonopen String?
+  L_Intraocular_pressure_AT      String?
+  L_Eyelids                      String?
+  L_Eyelashes                    String?
+  L_Lacrimal_punctum             String?
+  L_Orbit                        String?
+  L_Extraocular_movements        String?
+  L_Eye_position                 String?
+  L_Sclera_episclera             String?
+  L_Conjunctiva                  String?
+  L_Cornea                       String?
+  L_Anterior_chamber             String?
+  L_Angles                       String?
+  L_Iris_pupil                   String?
+  L_Lens                         String?
+  L_Lacrimal_syringing           String?
+  L_Gonioscopy                   String?
+  L_Others                       String?
+  patientId                      Int
+  appointmentId                  String
+}
+
+model Posterior {
+  id                 Int         @id @default(autoincrement())
+  created_at         DateTime    @default(now())
+  P_id               Patient     @relation(fields: [patientId], references: [id])
+  A_id               Appointment @relation(fields: [appointmentId], references: [id])
+  R_Media            String?
+  R_Vitreous         String?
+  R_Retina           String?
+  R_Optic_nerve_head String?
+  R_Choroid          String?
+  R_Macula           String?
+  R_Others           String?
+  L_Media            String?
+  L_Vitreous         String?
+  L_Retina           String?
+  L_Optic_nerve_head String?
+  L_Choroid          String?
+  L_Macula           String?
+  L_Others           String?
+  patientId          Int
+  appointmentId      String
+}
+
+//  Diagnosis
+
+model Diagnosis {
+  id            Int         @id @default(autoincrement())
+  created_at    DateTime    @default(now())
+  P_id          Patient     @relation(fields: [patientId], references: [id])
+  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  R_eye         String?
+  L_eye         String?
+  Systemic      String?
+  Others        String?
+  patientId     Int
+  appointmentId String
+}
+
+// advise
+
+model Advise {
+  id            Int         @id @default(autoincrement())
+  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  P_id          Patient     @relation(fields: [patientId], references: [id])
+  created_at    DateTime    @default(now())
+  type          String?
+  message       String?
+  appointmentId String
+  patientId     Int
+}
+
+// treatment
+
+model Treatment {
+  id            Int         @id @default(autoincrement())
+  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  P_id          Patient     @relation(fields: [patientId], references: [id])
+  created_at    DateTime    @default(now())
+  type          String?
+  message       String?
+  appointmentId String
+  patientId     Int
+}
+
+// Medicine
+
+model Medicine {
+  id            Int         @id @default(autoincrement())
+  created_at    DateTime    @default(now())
+  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  P_id          Patient     @relation(fields: [patientId], references: [id])
+  Dose          String
+  Days          String
+  Intake        String
+  message       String
+  appointmentId String
+  patientId     Int
+}
+
+// report
+
+model Report {
+  id            Int         @id @default(autoincrement())
+  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  P_id          Patient     @relation(fields: [patientId], references: [id])
+  document      String[]
+  appointmentId String
+  patientId     Int
 }
