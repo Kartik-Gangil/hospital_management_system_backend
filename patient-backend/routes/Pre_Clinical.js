@@ -5,10 +5,10 @@ const prisma = require('../controller/DB')
 
 // create complaint
 
-router.post('/createComplaint/:id', async (req, res) => {
+router.post('/createComplaint/:id/:A_id', async (req, res) => {
     try {
-        const { id } = req.params;
-        const { message, D_id, A_id } = req.body;
+        const { id, A_id } = req.params;
+        const { message, D_id } = req.body;
         const result = await prisma.complaint.create({
             data: {
                 P_id: parseInt(id),
@@ -41,19 +41,19 @@ router.get('/viewComplaint/:id', async (req, res) => {
 
 // create histroy
 
-router.post('/histroy/:id', async (req, res) => {
+router.post('/histroy/:id/:A_id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id, A_id } = req.params;
 
         const { D_id,
             Systemic_illness,
             Treatment_Histroy,
             Dite_Histroy,
             Family_Histroy,
-            appointmentId,
+
         } = req.body
 
-        if (!appointmentId || !id || !D_id) {
+        if (!id || !D_id) {
             return res.status(400).json({ error: "appointmentId, P_id, and D_id are required" });
         }
 
@@ -65,10 +65,10 @@ router.post('/histroy/:id', async (req, res) => {
                 Treatment_Histroy,
                 Dite_Histroy,
                 Family_Histroy,
-                appointmentId,
+                appointmentId: A_id,
             }
         })
-        return res.status(200).json(data)
+        return res.status(200).json({ data })
 
     } catch (error) {
         console.log(error)

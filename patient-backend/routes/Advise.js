@@ -6,6 +6,7 @@ router.post('/:Pid/:Aid', async (req, res) => {
     try {
         const { Pid, Aid } = req.params;
         const { type, message } = req.body;
+
         if (!Pid || !Aid || !type || !message) {
             return res.status(400).json({ message: "All fields are required" })
         }

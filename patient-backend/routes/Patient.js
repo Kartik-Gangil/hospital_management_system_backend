@@ -13,20 +13,31 @@ router.get('/:id', async (req, res) => {
                 id: parseInt(id)
             },
             include: {
-                Complaint: true,   // saare complaints fetch hoga
-                Appointment: true, // saare appointments fetch hoga
-                History: true, // saara history fetch hoga
+                Complaint: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                },   // saare complaints fetch hoga
+                Appointment: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                },
+                History: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                }, // saara history fetch hoga
                 Refraction: {
                     orderBy: {
                         created_at: 'desc',
                     },
-                    take: 1,
+                    
                 },
                 Vision: {
                     orderBy: {
                         created_at: 'desc',
                     },
-                    take: 1,
                 },
                 Anterior: {
                     orderBy: {
@@ -38,11 +49,23 @@ router.get('/:id', async (req, res) => {
                     orderBy: {
                         created_at: 'desc',
                     },
-                    take: 1,
+                   
                 },
-                Diagnosis: true,
-                Advise: true,
-                Treatment: true,
+                Diagnosis: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                },
+                Advise: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                },
+                Treatment: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                },
                 Medicine: true,
                 Report: true
             }

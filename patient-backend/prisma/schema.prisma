@@ -95,12 +95,14 @@ model Complaint {
   D_id          String
   message       String
   appointmentId String
+  created_at    DateTime    @default(now())
 }
 
 model History {
   id                String      @id @default(cuid())
   A_id              Appointment @relation(fields: [appointmentId], references: [id])
   patient           Patient     @relation(fields: [P_id], references: [id])
+  created_at        DateTime    @default(now())
   P_id              Int
   D_id              String
   Systemic_illness  String
@@ -307,6 +309,7 @@ model Medicine {
   message       String
   appointmentId String
   patientId     Int
+  medicine      String      @default("")
 }
 
 // report
