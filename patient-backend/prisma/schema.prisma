@@ -38,14 +38,13 @@ model Patient {
   Phone          String
   DOB            DateTime      @db.Date
   Reffered_by    String?
-  Age            Int
+  Age            String
   Insurance      String?
   Address        String
   City           String
   State          String
   created_at     DateTime      @default(now())
   Blood_group    bloodGroup
-  Emgr_name      String
   Emgr_mobile_no String
   document       String[]
   Complaint      Complaint[]

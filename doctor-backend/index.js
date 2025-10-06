@@ -10,12 +10,12 @@ app.use(express.json())
 app.use(cors())
 
 
-app.get("/patients", async (req, res) => {
+app.get("/allDoctors", async (req, res) => {
     try {
-        const patients = await prisma.doctor.findMany();
-        res.json(patients);
+        const data = await prisma.doctor.findMany();
+        return res.status(200).json(data);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 });
 

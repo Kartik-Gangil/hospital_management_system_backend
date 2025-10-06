@@ -23,6 +23,7 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.0.2
+    devDependencies:
       prisma:
         specifier: ^6.16.1
         version: 6.16.1

@@ -5,6 +5,20 @@ const storage = require('../multerConfig');
 const multer = require('multer');
 const upload = multer({ storage })
 
+
+
+router.get('/allPatient', async (req, res) => {
+    try {
+        const data = await prisma.patient.findMany();
+        return res.status(200).json(data)
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+})
+
+
+
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -32,7 +46,7 @@ router.get('/:id', async (req, res) => {
                     orderBy: {
                         created_at: 'desc',
                     },
-                    
+
                 },
                 Vision: {
                     orderBy: {
@@ -49,7 +63,7 @@ router.get('/:id', async (req, res) => {
                     orderBy: {
                         created_at: 'desc',
                     },
-                   
+
                 },
                 Diagnosis: {
                     orderBy: {
@@ -85,13 +99,13 @@ router.get('/:id', async (req, res) => {
 
 router.post('/NewPatient', upload.array("files", 10), async (req, res) => {
     try {
-        const { FullName, Gender, Phone, DOB, Reffered_by, Age, Insurance, Address, City, State, Blood_group, Emgr_name, Emgr_mobile_no } = req.body;
+        const { FullName, Gender, Phone, DOB, Reffered_by, Age, Insurance, Address, City, State, Blood_group, Emgr_mobile_no } = req.body;
 
-        const filePath = req.files.map((file) => file.path)
+        const filePath = req?.files?.map((file) => file.path)
 
         const result = await prisma.patient.create({
             data: {
-                FullName, Gender, Phone, DOB, Reffered_by, Age, Insurance, Address, City, State, Blood_group, Emgr_name, Emgr_mobile_no, document: filePath
+                FullName, Gender, Phone, DOB, Reffered_by, Age, Insurance, Address, City, State, Blood_group, Emgr_mobile_no, document: filePath
             }
         })
         if (!result) {
@@ -104,8 +118,6 @@ router.post('/NewPatient', upload.array("files", 10), async (req, res) => {
         return res.status(500).json({ error: "Something went wrong" });
     }
 });
-
-
 
 
 
