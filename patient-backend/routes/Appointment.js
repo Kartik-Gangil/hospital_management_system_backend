@@ -28,13 +28,12 @@ router.post('/createAppointment', async (req, res) => {
 router.get('/allAppointment', async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
-       
         const data = await prisma.appointment.findMany({
-            where: {
-                Appointment_date: new Date(today)
-            },
+            // where: {
+            //     Appointment_date: new Date(today)
+            // },
             include: {
-                patient:true
+                patient: true
             }
         });
         return res.status(200).json(data)

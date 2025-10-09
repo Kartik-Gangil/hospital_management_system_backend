@@ -80,7 +80,11 @@ router.get('/:id', async (req, res) => {
                         created_at: 'desc',
                     },
                 },
-                Medicine: true,
+                Medicine: {
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                },
                 Report: true
             }
         })

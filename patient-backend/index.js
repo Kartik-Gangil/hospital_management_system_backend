@@ -9,6 +9,7 @@ const Diagnosis = require('./routes/Diagnosis');
 const Advise = require('./routes/Advise'); 
 const Treatment = require('./routes/Treatment'); 
 const Medicine = require('./routes/Medicine'); 
+const Update = require('./routes/Update'); 
 
 config();
 
@@ -17,6 +18,7 @@ const port = process.env.PORT || 8001;
 app.use(express.json())
 app.use(cors())
 
+app.use("/v1/update", Update)
 app.use("/v1/appointment", appointment)
 app.use("/v1/advice", Advise)
 app.use("/v1/Medicine", Medicine)
