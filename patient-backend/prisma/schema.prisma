@@ -44,7 +44,7 @@ model Patient {
   City           String
   State          String
   created_at     DateTime      @default(now())
-  Blood_group    bloodGroup
+  Blood_group    bloodGroup    @default(O_NEG)
   Emgr_mobile_no String
   document       String[]
   Complaint      Complaint[]
