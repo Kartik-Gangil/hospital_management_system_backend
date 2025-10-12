@@ -7,7 +7,7 @@
 	"type": "commonjs",
 	"main": "index.js",
 	"scripts": {
-		"prisma": "npx prisma migrate deploy",
+		"prisma": "npx prisma generate && npx prisma migrate dev --name init",
 		"dev": "nodemon index.js",
 		"start": "node index.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
