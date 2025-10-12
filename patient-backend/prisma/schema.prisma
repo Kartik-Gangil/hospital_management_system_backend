@@ -229,6 +229,7 @@ model Anterior {
   L_Others                       String?
   patientId                      Int
   appointmentId                  String
+  image_file                     String[]
 }
 
 model Posterior {
