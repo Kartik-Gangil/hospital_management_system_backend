@@ -7,13 +7,13 @@ const prisma = require('../controller/DB');
 
 router.post('/createAppointment', async (req, res) => {
     try {
-        const { P_id, D_id, message, date } = req.body;
+        const { P_id, D_id, time, date } = req.body;
         const result = await prisma.appointment.create({
             data: {
                 P_id: parseInt(P_id),
                 D_id,
                 Appointment_date: date,
-                // complaint: message
+                Time: time
             }
         })
         // const response = convertBigInt(result)

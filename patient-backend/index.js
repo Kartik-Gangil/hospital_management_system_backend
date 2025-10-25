@@ -1,15 +1,19 @@
 const express = require('express');
 const { config } = require('dotenv');
 const cors = require('cors');
+const http = require('http');
+const socketIo = require('socket.io');
+const { createClient } = require('redis')
 const patient = require('./routes/Patient')
 const pre_clinical = require('./routes/Pre_Clinical');
 const Clinical_Exam = require('./routes/Clinical_Exam');
 const appointment = require('./routes/Appointment');
-const Diagnosis = require('./routes/Diagnosis'); 
-const Advise = require('./routes/Advise'); 
-const Treatment = require('./routes/Treatment'); 
-const Medicine = require('./routes/Medicine'); 
-const Update = require('./routes/Update'); 
+const Diagnosis = require('./routes/Diagnosis');
+const Advise = require('./routes/Advise');
+const Treatment = require('./routes/Treatment');
+const Medicine = require('./routes/Medicine');
+const Update = require('./routes/Update');
+const report = require('./routes/report');
 
 config();
 
@@ -17,6 +21,24 @@ const app = express();
 const port = process.env.PORT || 8001;
 app.use(express.json())
 app.use(cors())
+
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "*"
+    }
+})
+
+const redisClient = createClient()
+redisClient.on('error', err => console.log('Redis Client Error', err));
+// await redisClient.connect();
+
+// Send updates to admin dashboard
+async function sendUpdate() {
+    const counts = await redisClient.hGetAll('deskCounts');
+    io.emit('updateCounts', counts);
+}
+
 
 app.use("/v1/update", Update)
 app.use("/v1/appointment", appointment)
@@ -27,9 +49,13 @@ app.use("/v1/diagnosis", Diagnosis)
 app.use("/v1/Clinical", Clinical_Exam)
 app.use("/v1/pre-clinical", pre_clinical)
 app.use("/v1/patient", patient)
+app.use("/v1/report", report)
+
+io.on('connection', async (socket) => {
+    console.log('Admin connected');
+    const counts = await redisClient.hGetAll('deskCounts');
+    socket.emit('updateCounts', counts);
+});
 
 
-
-
-
-app.listen(port, () => console.log(`server is running on port : ${port}`))
+server.listen(port, () => console.log(`server is running on port : ${port}`))

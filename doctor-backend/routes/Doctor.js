@@ -1,13 +1,15 @@
 const express = require('express');
+const { config } = require('dotenv');
 const prisma = require('../controller/DB');
 const router = express.Router()
 const multer = require('multer');
 const storage = require('../multerConfig');
 const upload = multer({ storage })
 const verifyToken = require('../middleware/verifyToken')
-
+const jwt = require('jsonwebtoken');
+config();
 // get doctor details
-router.get("/:id", async (req, res) => {
+router.get("/:id", verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
         const data = await prisma.doctor.findUnique({
@@ -40,9 +42,10 @@ router.put("/:id", upload.array('files', 5), async (req, res) => {
 });
 
 // delete the specific doctor
-router.delete("/:id", verifyToken ,async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(req.user)
         const data = await prisma.doctor.delete({
             where: {
                 id
@@ -74,10 +77,27 @@ router.post("/login", async (req, res) => {
                 email
             }
         })
-        if (data.Password == password) {
-            return res.status(200).json({ id: data.id })
+        if (!data) {
+            return res.status(404).json({ message: "Doctor not found" });
         }
-        return res.status(500).json("Not found")
+
+        // check password
+        if (data.Password !== password) {
+            return res.status(401).json({ message: "Invalid password" });
+        }
+
+        // generate token
+        jwt.sign(
+            { id: data.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "2d" },
+            (err, token) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                return res.status(200).json({ token, id: data.id });
+            }
+        );
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }

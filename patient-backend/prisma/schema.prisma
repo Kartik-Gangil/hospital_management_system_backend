@@ -67,7 +67,9 @@ model Appointment {
   P_id             Int
   patient          Patient      @relation(fields: [P_id], references: [id])
   D_id             String
+  status           String       @default("Pending")
   Appointment_date DateTime     @db.Date
+  Time             String     
   complaint        String?
   created_at       DateTime     @default(now())
   Anterior         Anterior[]
@@ -81,7 +83,6 @@ model Appointment {
   Advise           Advise[]
   Treatment        Treatment[]
   Medicine         Medicine[]
-  Report           Report[]
 }
 
 // pre clinical schemas
@@ -316,9 +317,8 @@ model Medicine {
 
 model Report {
   id            Int         @id @default(autoincrement())
-  A_id          Appointment @relation(fields: [appointmentId], references: [id])
   P_id          Patient     @relation(fields: [patientId], references: [id])
-  document      String[]
-  appointmentId String
+  created_at    DateTime    @default(now())
+  document      Json
   patientId     Int
 }
