@@ -8,7 +8,7 @@ redisClient.connect();
 redisClient.on('error', err => console.log('Redis Client Error', err));
 
 const redisSubscriber = createClient({
-    url: "redis://127.0.0.1:6379" // Redis server URL
+    url: process.env.REDIS_URL // Redis server URL
 });
 
 // Connect to Redis
