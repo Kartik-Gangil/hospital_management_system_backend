@@ -8,6 +8,41 @@ const upload = multer({ storage })
 const verifyToken = require('../middleware/verifyToken')
 const jwt = require('jsonwebtoken');
 config();
+
+
+router.post("/addDoctor", upload.array("files", 5), async (req, res) => {
+    try {
+        const { email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City, Document } = req.body;
+
+        if (!email && !Password && !FullName && !Department && !Designation && !Gender && !Phone && !Address) {
+            return res.status(400).json({ message: "something went wronge" })
+        }
+
+        const Email = await prisma.doctor.findUnique({
+            where: {
+                email
+            }
+        })
+        if (Email) {
+            return res.status(400).json({ message: "use valid email , user already exist or email is incorrect" })
+        }
+
+        const data = await prisma.doctor.create({
+            data: {
+                email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City, Document
+            }
+        })
+
+        return res.status(200).json({ message: "doctor add successfully", data });
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+})
+
+
+
+
 // get doctor details
 router.get("/:id", verifyToken, async (req, res) => {
     try {
@@ -98,37 +133,6 @@ router.post("/login", async (req, res) => {
                 return res.status(200).json({ token, id: data.id });
             }
         );
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
-    }
-})
-
-
-router.post("/addDoctor", upload.array("files", 5), async (req, res) => {
-    try {
-        const { email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City, Document } = req.body;
-
-        if (!email && !Password && !FullName && !Department && !Designation && !Gender && !Phone && !Address) {
-            return res.status(400).json({ message: "something went wronge" })
-        }
-
-        const Email = await prisma.doctor.findUnique({
-            where: {
-                email
-            }
-        })
-        if (Email) {
-            return res.status(400).json({ message: "use valid email , user already exist or email is incorrect" })
-        }
-
-        const data = await prisma.doctor.create({
-            data: {
-                email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City, Document
-            }
-        })
-
-        return res.status(200).json({ message: "doctor add successfully", data });
-
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
