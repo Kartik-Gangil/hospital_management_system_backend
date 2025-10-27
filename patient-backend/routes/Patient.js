@@ -57,7 +57,7 @@ router.get('/:id', async (req, res) => {
                     orderBy: {
                         created_at: 'desc',
                     },
-                    
+
                 },
                 Posterior: {
                     orderBy: {
@@ -85,6 +85,7 @@ router.get('/:id', async (req, res) => {
                         created_at: 'desc',
                     },
                 },
+                Allergies: true,
                 Report: true
             }
         })

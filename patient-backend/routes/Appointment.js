@@ -125,5 +125,23 @@ router.get('/latestCounts', async (req, res) => {
         return res.status(500).json({ error: "Something went wrong" });
     }
 });
+router.get('/AppointmentDetail/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await prisma.appointment.findUnique({
+            where: {
+                id
+            },
+            select: {
+                status: true,
+            }
+        })
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+});
 
 module.exports = router;
