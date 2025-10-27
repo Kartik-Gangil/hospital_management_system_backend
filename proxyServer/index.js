@@ -15,6 +15,7 @@ app.use("/doctor", createProxyMiddleware({
 app.use("/patient", createProxyMiddleware({
     target: "http://localhost:8001",
     changeOrigin: true,
+    ws:true,
     pathRewrite: { "^/patient": "" },
 }));
 

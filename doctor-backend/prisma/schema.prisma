@@ -20,6 +20,7 @@ enum designation {
   Front_Desk
   Receptionist
   Doctor
+  Developer
 }
 
 enum gender {
@@ -36,10 +37,10 @@ model doctor {
   Department  String @default("Ophthalmology")
   Designation designation
   Gender      gender
-  Phone       String
-  Address     String
-  State       String
-  City        String
-  Document    String
+  Phone       String?
+  Address     String?
+  State       String?
+  City        String?
+  Document    String?
   created_at DateTime @default(now())
 }

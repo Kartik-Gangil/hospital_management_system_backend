@@ -3,7 +3,6 @@ const { config } = require('dotenv');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
-const { createClient } = require('redis')
 const patient = require('./routes/Patient')
 const pre_clinical = require('./routes/Pre_Clinical');
 const Clinical_Exam = require('./routes/Clinical_Exam');
@@ -14,6 +13,7 @@ const Treatment = require('./routes/Treatment');
 const Medicine = require('./routes/Medicine');
 const Update = require('./routes/Update');
 const report = require('./routes/report');
+const { redisSubscriber } = require('./redisClient');
 
 config();
 
@@ -25,19 +25,18 @@ app.use(cors())
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*"
-    }
+        origin: "*",
+        methods: ["GET", "POST"]
+    },
+    path: "/socket.io" // default, can omit
 })
 
-const redisClient = createClient()
-redisClient.on('error', err => console.log('Redis Client Error', err));
-// await redisClient.connect();
 
 // Send updates to admin dashboard
-async function sendUpdate() {
-    const counts = await redisClient.hGetAll('deskCounts');
-    io.emit('updateCounts', counts);
-}
+// async function sendUpdate() {
+//     const counts = await redisClient.hGetAll('deskCounts');
+//     io.emit('updateCounts', counts);
+// }
 
 
 app.use("/v1/update", Update)
@@ -51,10 +50,19 @@ app.use("/v1/pre-clinical", pre_clinical)
 app.use("/v1/patient", patient)
 app.use("/v1/report", report)
 
-io.on('connection', async (socket) => {
-    console.log('Admin connected');
-    const counts = await redisClient.hGetAll('deskCounts');
-    socket.emit('updateCounts', counts);
+// io.on('connection', async (socket) => {
+//     console.log('Admin connected');
+//     const counts = await redisClient.hGetAll('deskCounts');
+//     socket.emit('updateCounts', counts);
+// });
+
+redisSubscriber.subscribe('appointment_updates', (message) => {
+    const data = JSON.parse(message);
+
+    // data.updated = updated appointment
+    // data.counts = current patient counts per department
+    console.log(data)
+    io.emit('appointmentUpdated', data);
 });
 
 
