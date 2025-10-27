@@ -97,7 +97,7 @@ router.get('/:id', async (req, res) => {
         return res.status(200).json(data)
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Something went wrong" });
+        return res.status(500).json({ msg: "Something went wrong" , error });
     }
 });
 
@@ -120,7 +120,7 @@ router.post('/NewPatient', upload.array("files", 10), async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Something went wrong" });
+        return res.status(500).json({ msg: "Something went wrong" , error});
     }
 });
 
