@@ -12,7 +12,7 @@ config();
 
 router.post("/addDoctor", upload.array("files", 5), async (req, res) => {
     try {
-        const { email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City, Document } = req.body;
+        const { email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City } = req.body;
 
         if (!email && !Password && !FullName && !Department && !Designation && !Gender && !Phone && !Address) {
             return res.status(400).json({ message: "something went wronge" })
@@ -29,7 +29,7 @@ router.post("/addDoctor", upload.array("files", 5), async (req, res) => {
 
         const data = await prisma.doctor.create({
             data: {
-                email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City, Document
+                email, Password, FullName, Department, Designation, Gender, Phone, Address, State, City
             }
         })
 
