@@ -4,14 +4,15 @@ const express = require("express");
 const { config } = require("dotenv");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
-config({ path: path.join(__dirname, '.env') }); // Load env from parent directory
+// config({ path: path.join(__dirname, '.env') }); // Load env from parent directory
+config()
 const HOST = process.env.HOST || "localhost";  // or your desired host
 const PORT = process.env.PORT || 5000;  // or your desired port
 
 const app = express(); app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://modieyehospital-fronted-1.vercel.app/", // for production
+        "https://modieyehospital-fronted-1.vercel.app", // for production
     ]
 }));  // Enable CORS for all routes
 app.use(express.json()); // Parse JSON bodies

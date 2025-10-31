@@ -3,8 +3,8 @@ const { config } = require('dotenv');
 const cors = require('cors');
 const path = require('path');
 const Doctor = require('./routes/Doctor')
-config({ path: path.join(__dirname, '.env') }); // Load env from current directory
-
+// config({ path: path.join(__dirname, '.env') }); // Load env from current directory
+config()
 const app = express();
 const PORT = process.env.PORT || 8000;
 const HOST = process.env.HOST || 'localhost';
@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://modieyehospital-fronted-1.vercel.app/", // for production
+        "https://modieyehospital-fronted-1.vercel.app", // for production
     ]
 }))
 
