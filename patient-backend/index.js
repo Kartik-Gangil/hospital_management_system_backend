@@ -25,8 +25,12 @@ app.use(cors())
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
+        origin: [
+            "http://localhost:5173",              
+            "https://modieyehospital-fronted-1.vercel.app/", // for production
+        ],
+        withCredentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE"],
     },
     path: "/socket.io" // default, can omit
 })

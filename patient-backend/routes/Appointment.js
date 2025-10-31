@@ -15,9 +15,10 @@ async function updateRedisCounts(status, prevStatus = null) {
     if (prevStatus && counts[prevStatus] > 0) {
         counts[prevStatus]--;
     }
-
-    await redisClient.set('appointment_counts', JSON.stringify(counts));
-    await redisClient.publish('appointment_updates', JSON.stringify({ result: counts }));
+    await Promise.all([
+        redisClient.set('appointment_counts', JSON.stringify(counts)),
+        redisClient.publish('appointment_updates', JSON.stringify({ result: counts }))
+    ])
 }
 
 // ----------------------------------------
