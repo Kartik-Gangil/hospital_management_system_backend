@@ -19,7 +19,8 @@ const { redisSubscriber } = require('./redisClient');
 config({ path: path.join(__dirname, '.env') }); // Load env from current directory
 
 const app = express();
-const port = process.env.PORT || 8001;
+const PORT = process.env.PORT || 8001;
+const HOST = process.env.HOST || 'localhost';
 app.use(express.json())
 app.use(cors())
 
@@ -71,4 +72,4 @@ redisSubscriber.subscribe('appointment_updates', (message) => {
 });
 
 
-server.listen(port, () => console.log(`server is running on port : ${port}`))
+server.listen(PORT, HOST, () => console.log(`server is running on port : ${PORT}`))
