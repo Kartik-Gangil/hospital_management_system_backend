@@ -84,9 +84,37 @@ router.put('/updateStatus/:id', async (req, res) => {
 // ----------------------------------------
 router.get('/allAppointment', async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
         const data = await prisma.appointment.findMany({
-            include: { patient: true },
+            skip,
+            take: limit,
+            orderBy: {
+                Appointment_date: 'desc', // always order by something stable
+            },
+            select: {
+                id: true,
+                Appointment_date: true,
+                Time: true,
+                status: true,
+                P_id: true,
+                patient: {
+                    select: {
+                        FullName: true,
+                        Age: true,
+                        Gender: true,
+                        Phone: true,
+                    }
+                }
+            }
         });
+
+
+        const totalAppointments = await prisma.appointment.count();
+        const totalPages = Math.ceil(totalAppointments / limit);
+
+
 
         // Only compute counts if Redis doesn’t have them yet
         let counts = await redisClient.get('appointment_counts');
@@ -105,7 +133,12 @@ router.get('/allAppointment', async (req, res) => {
             counts = JSON.parse(counts);
         }
 
-        return res.status(200).json({ data });
+        return res.status(200).json({
+            currentPage: page,
+            totalPages,
+            totalAppointments,
+            data,
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Something went wrong" });

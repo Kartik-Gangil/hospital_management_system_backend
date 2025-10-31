@@ -1,9 +1,9 @@
 const express = require('express');
 const { config } = require('dotenv');
 const cors = require('cors');
-const prisma = require('./controller/DB')
+const path = require('path');
 const Doctor = require('./routes/Doctor')
-config();
+config({ path: path.join(__dirname, '.env') }); // Load env from current directory
 
 const app = express();
 const port = process.env.PORT || 8000;
