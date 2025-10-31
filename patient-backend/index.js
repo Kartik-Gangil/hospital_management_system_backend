@@ -2,7 +2,7 @@ const express = require('express');
 const { config } = require('dotenv');
 const cors = require('cors');
 const http = require('http');
-const socketIo = require('socket.io');
+const { Server } = require('socket.io');
 const patient = require('./routes/Patient')
 const pre_clinical = require('./routes/Pre_Clinical');
 const Clinical_Exam = require('./routes/Clinical_Exam');
@@ -23,10 +23,10 @@ app.use(express.json())
 app.use(cors())
 
 const server = http.createServer(app);
-const io = socketIo(server, {
+const io = new Server(server, {
     cors: {
         origin: [
-            "http://localhost:5173",              
+            "http://localhost:5173",
             "https://modieyehospital-fronted-1.vercel.app/", // for production
         ],
         withCredentials: true,
