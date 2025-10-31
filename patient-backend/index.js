@@ -22,7 +22,12 @@ const app = express();
 const PORT = process.env.PORT || 8001;
 const HOST = process.env.HOST || 'localhost';
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "https://modieyehospital-fronted-1.vercel.app/", // for production
+    ]
+}))
 
 const server = http.createServer(app);
 const io = new Server(server, {
