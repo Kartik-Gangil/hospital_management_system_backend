@@ -16,8 +16,8 @@ const Update = require('./routes/Update');
 const report = require('./routes/report');
 const { redisSubscriber } = require('./redisClient');
 
-config({ path: path.join(__dirname, '.env') }); // Load env from current directory
-
+// config({ path: path.join(__dirname, '.env') }); // Load env from current directory
+config()
 const app = express();
 const PORT = process.env.PORT || 8001;
 const HOST = process.env.HOST || 'localhost';
@@ -25,7 +25,7 @@ app.use(express.json())
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://modieyehospital-fronted-1.vercel.app/", // for production
+        "https://modieyehospital-fronted-1.vercel.app", // for production
     ]
 }))
 
@@ -34,7 +34,7 @@ const io = new Server(server, {
     cors: {
         origin: [
             "http://localhost:5173",
-            "https://modieyehospital-fronted-1.vercel.app/", // for production
+            "https://modieyehospital-fronted-1.vercel.app", // for production
         ],
         withCredentials: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
@@ -60,19 +60,20 @@ app.use("/v1/Clinical", Clinical_Exam)
 app.use("/v1/pre-clinical", pre_clinical)
 app.use("/v1/patient", patient)
 app.use("/v1/report", report)
+app.get('/healthz', (_, res) => res.status(200).send('ok'));
 
-// io.on('connection', async (socket) => {
-//     console.log('Admin connected');
-//     const counts = await redisClient.hGetAll('deskCounts');
-//     socket.emit('updateCounts', counts);
-// });
+io.on('connection', socket => {
+    console.log('✅ Socket connected:', socket.id);
+    socket.on('disconnect', () => console.log('❌ Socket disconnected:', socket.id));
+});
+
 
 redisSubscriber.subscribe('appointment_updates', (message) => {
     const data = JSON.parse(message);
 
     // data.updated = updated appointment
     // data.counts = current patient counts per department
-    console.log(data)
+    // console.log(data)
     io.emit('appointmentUpdated', data);
 });
 
