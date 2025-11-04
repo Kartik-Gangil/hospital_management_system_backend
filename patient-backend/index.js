@@ -25,6 +25,7 @@ app.use(express.json())
 app.use(cors({
     origin: [
         "http://localhost:5173",
+        "http://localhost:5000",
         "https://modieyehospital-fronted-1.vercel.app", // for production
     ]
 }))
@@ -34,6 +35,7 @@ const io = new Server(server, {
     cors: {
         origin: [
             "http://localhost:5173",
+            "http://localhost:5000",
             "https://modieyehospital-fronted-1.vercel.app", // for production
         ],
         withCredentials: true,

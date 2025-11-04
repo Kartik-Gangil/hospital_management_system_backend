@@ -15,7 +15,7 @@ const app = express(); app.use(cors({
         "https://modieyehospital-fronted-1.vercel.app", // for production
     ]
 }));  // Enable CORS for all routes
-app.use(express.json()); // Parse JSON bodies
+// app.use(express.json()); // Parse JSON bodies
 
 // doctor Service
 app.use("/doctor", createProxyMiddleware({
