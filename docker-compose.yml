@@ -1,24 +1,87 @@
+version: '3.9'
+
 services:
-  doctor-DB:
+  # Database Service for Doctor
+  doctor-db:
     image: postgres:17
     container_name: doctor-db
     environment:
-      POSTGRES_USER : doctor
-      POSTGRES_PASSWORD : doctor-db
-      POSTGRES_DB : doctordb
+      POSTGRES_USER: doctor
+      POSTGRES_PASSWORD: doctor-db
+      POSTGRES_DB: doctordb
     ports:
-      - "5432:5432" 
-  Patient-DB:
+      - "5432:5432"
+
+  # Database Service for Patient
+  patient-db:
     image: postgres:17
     container_name: patient-db
     environment:
-      POSTGRES_USER : patient
-      POSTGRES_PASSWORD : patient-db
-      POSTGRES_DB : patientdb
+      POSTGRES_USER: patient
+      POSTGRES_PASSWORD: patient-db
+      POSTGRES_DB: patientdb
     ports:
-      - "5433:5432" 
-  Redis:
+      - "5433:5432"
+
+  # Redis Service
+  redis:
     image: redis:7
     container_name: redis
     ports:
       - "6379:6379"
+
+  # Backend Service for Doctor
+  doctor-backend:
+    build:
+      context: ./doctor-backend
+      dockerfile: Dockerfile
+    container_name: doctor-backend
+    environment:
+      DATABASE_URL: ${DOCTOR_DATABASE_URL}
+      JWT_SECRET: modieyecare
+      HOST: 0.0.0.0
+      PORT: 8000
+    command: sh -c "npx prisma migrate deploy && npm start"
+    ports:
+      - "8000:8000"
+      - "5555:5555"
+    depends_on:
+      - doctor-db
+
+  # Backend Service for Patient
+  patient-backend:
+    build:
+      context: ./patient-backend
+      dockerfile: Dockerfile
+    container_name: patient-backend
+    environment:
+      DATABASE_URL: ${PATIENT_DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      HOST: 0.0.0.0
+      PORT: 8001
+    command: sh -c "npx prisma migrate deploy && npm start"
+    ports:
+      - "8001:8001"
+      - "5554:5555"
+    depends_on:
+      - patient-db
+      - redis
+
+  # Proxy Server
+  proxy-server:
+    build:
+      context: ./proxyServer
+      dockerfile: Dockerfile
+    container_name: proxy-server
+    env_file:
+      - .env
+    environment:
+      DOCTOR_URL: ${DOCTOR_URL}
+      PATIENT_URL: ${PATIENT_URL}
+      HOST: 0.0.0.0
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - doctor-backend
+      - patient-backend
