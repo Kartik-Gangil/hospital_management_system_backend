@@ -11,6 +11,8 @@ services:
       POSTGRES_DB: doctordb
     ports:
       - "5432:5432"
+    volumes:
+      - doctor_db_data:/var/lib/postgresql/data
 
   # Database Service for Patient
   patient-db:
@@ -22,6 +24,8 @@ services:
       POSTGRES_DB: patientdb
     ports:
       - "5433:5432"
+    volumes:
+      - patient_db_data:/var/lib/postgresql/data
 
   # Redis Service
   redis:
@@ -36,6 +40,7 @@ services:
       context: ./doctor-backend
       dockerfile: Dockerfile
     container_name: doctor-backend
+    restart: always
     environment:
       DATABASE_URL: ${DOCTOR_DATABASE_URL}
       JWT_SECRET: modieyecare
@@ -45,6 +50,8 @@ services:
     ports:
       - "8000:8000"
       - "5555:5555"
+    volumes:
+      - doctor_uploads:/app/uploads
     depends_on:
       - doctor-db
 
@@ -54,6 +61,7 @@ services:
       context: ./patient-backend
       dockerfile: Dockerfile
     container_name: patient-backend
+    restart: always
     environment:
       DATABASE_URL: ${PATIENT_DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
@@ -63,6 +71,8 @@ services:
     ports:
       - "8001:8001"
       - "5554:5555"
+    volumes:
+      - patient_uploads:/app/uploads
     depends_on:
       - patient-db
       - redis
@@ -73,6 +83,7 @@ services:
       context: ./proxyServer
       dockerfile: Dockerfile
     container_name: proxy-server
+    restart: always
     env_file:
       - .env
     environment:
@@ -85,3 +96,15 @@ services:
     depends_on:
       - doctor-backend
       - patient-backend
+
+
+
+
+# -------------------------
+# Persistent Volumes
+# -------------------------
+volumes:
+  doctor_db_data:
+  patient_db_data:
+  doctor_uploads:
+  patient_uploads:
