@@ -86,10 +86,21 @@ router.get('/allAppointment', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
+        const city = req.query.city || null;
+        const state = req.query.state || null;
         const skip = (page - 1) * limit;
         const data = await prisma.appointment.findMany({
             skip,
             take: limit,
+            where: {
+                ...(city || state ? {
+                    patient: {
+                        ...(city ? { City: city } : {}),
+                        ...(state ? { State: state } : {}),
+                    }
+                } : {}
+                )
+            },
             orderBy: {
                 Appointment_date: 'desc', // always order by something stable
             },
