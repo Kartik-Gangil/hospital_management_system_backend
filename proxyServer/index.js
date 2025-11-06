@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 5000;  // or your desired port
 
 const app = express(); app.use(cors({
     origin: [
+        "http://43.230.203.230",
         "http://localhost:5173",
         "https://modieyehospital-fronted-1.vercel.app", // for production
     ]
