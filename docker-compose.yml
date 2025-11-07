@@ -9,6 +9,11 @@ services:
       POSTGRES_USER: doctor
       POSTGRES_PASSWORD: doctor-db
       POSTGRES_DB: doctordb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U doctor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "5432:5432"
     volumes:
@@ -22,6 +27,11 @@ services:
       POSTGRES_USER: patient
       POSTGRES_PASSWORD: patient-db
       POSTGRES_DB: patientdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U patient"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "5433:5432"
     volumes:
@@ -33,6 +43,11 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Backend Service for Doctor
   doctor-backend:
@@ -53,7 +68,8 @@ services:
     volumes:
       - doctor_uploads:/app/uploads
     depends_on:
-      - doctor-db
+      doctor-db:
+        condition: service_healthy
 
   # Backend Service for Patient
   patient-backend:
@@ -74,8 +90,10 @@ services:
     volumes:
       - patient_uploads:/app/uploads
     depends_on:
-      - patient-db
-      - redis
+      patient-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   # Proxy Server
   proxy-server:
@@ -96,9 +114,6 @@ services:
     depends_on:
       - doctor-backend
       - patient-backend
-
-
-
 
 # -------------------------
 # Persistent Volumes
