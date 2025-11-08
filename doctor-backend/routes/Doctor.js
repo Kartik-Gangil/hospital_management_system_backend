@@ -7,6 +7,7 @@ const storage = require('../multerConfig');
 const upload = multer({ storage })
 const verifyToken = require('../middleware/verifyToken')
 const jwt = require('jsonwebtoken');
+const { designation } = require('../generated/prisma');
 config();
 
 
@@ -95,6 +96,19 @@ router.delete("/:id", verifyToken, async (req, res) => {
 // get all doctors
 router.get("/get/allDoctors", async (req, res) => {
     try {
+        const data = await prisma.doctor.findMany({
+            where: {
+                Designation: 'Doctor'
+            }
+        });
+        return res.status(200).json(data);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.get("/get/allUsers", async (req, res) => {
+    try {
         const data = await prisma.doctor.findMany();
         return res.status(200).json(data);
     } catch (err) {
@@ -130,7 +144,7 @@ router.post("/login", async (req, res) => {
                 if (err) {
                     return res.status(500).json({ error: err.message });
                 }
-                return res.status(200).json({ token, id: data.id });
+                return res.status(200).json({ token, id: data.id , designation : data.Designation});
             }
         );
     } catch (error) {

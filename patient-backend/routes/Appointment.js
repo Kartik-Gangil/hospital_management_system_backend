@@ -33,7 +33,7 @@ router.post('/createAppointment', async (req, res) => {
                 D_id,
                 Appointment_date: date,
                 Time: time,
-                status: 'pending', // assuming default
+                status: 'Receptionist', // assuming default
             },
         });
 
@@ -79,6 +79,11 @@ router.put('/updateStatus/:id', async (req, res) => {
     }
 });
 
+
+
+
+
+
 // ----------------------------------------
 // Get All Appointments (with caching)
 // ----------------------------------------
@@ -88,11 +93,14 @@ router.get('/allAppointment', async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const city = req.query.city || null;
         const state = req.query.state || null;
+        const designation = req.query.designation || null;
         const skip = (page - 1) * limit;
         const data = await prisma.appointment.findMany({
             skip,
             take: limit,
             where: {
+                status: designation
+                ,
                 ...(city || state ? {
                     patient: {
                         ...(city ? { City: city } : {}),

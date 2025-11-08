@@ -9,7 +9,12 @@ const upload = multer({ storage })
 
 router.get('/allPatient', async (req, res) => {
     try {
-        const data = await prisma.patient.findMany();
+        const data = await prisma.patient.findMany({
+            select: {
+                id: true,
+                FullName:true
+            }
+        });
         return res.status(200).json(data)
     } catch (error) {
         console.error(error);
