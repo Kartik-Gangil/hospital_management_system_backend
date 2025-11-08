@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: doctor-db
       POSTGRES_DB: doctordb
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U doctor"]
+      test: ["CMD-SHELL", "pg_isready -U doctor -d doctordb"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
       POSTGRES_PASSWORD: patient-db
       POSTGRES_DB: patientdb
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U patient"]
+      test: ["CMD-SHELL", "pg_isready -U patient -d patientdb"]
       interval: 10s
       timeout: 5s
       retries: 5
