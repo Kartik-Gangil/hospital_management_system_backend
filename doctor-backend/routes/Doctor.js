@@ -7,7 +7,6 @@ const storage = require('../multerConfig');
 const upload = multer({ storage })
 const verifyToken = require('../middleware/verifyToken')
 const jwt = require('jsonwebtoken');
-const { designation } = require('../generated/prisma');
 config();
 
 

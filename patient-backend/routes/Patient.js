@@ -9,12 +9,7 @@ const upload = multer({ storage })
 
 router.get('/allPatient', async (req, res) => {
     try {
-        const data = await prisma.patient.findMany({
-            select: {
-                id: true,
-                FullName:true
-            }
-        });
+        const data = await prisma.patient.findMany();
         return res.status(200).json(data)
     } catch (error) {
         console.error(error);
@@ -102,7 +97,7 @@ router.get('/:id', async (req, res) => {
         return res.status(200).json(data)
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ msg: "Something went wrong" , error });
+        return res.status(500).json({ msg: "Something went wrong", error });
     }
 });
 
@@ -125,7 +120,7 @@ router.post('/NewPatient', upload.array("files", 10), async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ msg: "Something went wrong" , error});
+        return res.status(500).json({ msg: "Something went wrong", error });
     }
 });
 
