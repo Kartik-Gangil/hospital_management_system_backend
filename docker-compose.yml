@@ -14,8 +14,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - "5432:5432"
     volumes:
       - doctor_db_data:/var/lib/postgresql/data
 
@@ -32,8 +30,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - "5433:5432"
     volumes:
       - patient_db_data:/var/lib/postgresql/data
 
@@ -41,8 +37,6 @@ services:
   redis:
     image: redis:7
     container_name: redis
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
