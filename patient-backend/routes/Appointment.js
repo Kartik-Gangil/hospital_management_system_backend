@@ -80,13 +80,29 @@ router.put('/updateStatus/:id', async (req, res) => {
 });
 
 
+router.get('/allPatientCity', async (req, res) => {
+    try {
+        const cities = await prisma.patient.findMany({
+            select: {
+                City: true,
+            },
+            distinct: ['City'],
+        });
+        return res.status(200).json(cities);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Something went wrong", error });
+    }
+})
 
 
 
 
 // ----------------------------------------
-// Get All Appointments (with caching)
+// Get All Appointments
 // ----------------------------------------
+
 router.get('/allAppointment', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -99,8 +115,7 @@ router.get('/allAppointment', async (req, res) => {
             skip,
             take: limit,
             where: {
-                status: designation
-                ,
+                ...(designation ? { status: designation } : {}),
                 ...(city || state ? {
                     patient: {
                         ...(city ? { City: city } : {}),
@@ -131,6 +146,76 @@ router.get('/allAppointment', async (req, res) => {
 
 
         const totalAppointments = await prisma.appointment.count();
+        const totalPages = Math.ceil(totalAppointments / limit);
+
+        return res.status(200).json({
+            currentPage: page,
+            totalPages,
+            totalAppointments,
+            data,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+});
+
+
+
+
+router.get('/allTodayAppointment', async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const city = req.query.city || null;
+        const state = req.query.state || null;
+        const designation = req.query.designation || null;
+        const skip = (page - 1) * limit;
+        // convert the today date hours to 00:00:00 UTC
+        const today = new Date().toISOString().split('T')[0];
+
+        const data = await prisma.appointment.findMany({
+            skip,
+            take: limit,
+            where: {
+                Appointment_date: new Date(today).toISOString(),
+                ...(designation ? { status: designation } : {}),
+                ...(city || state ? {
+                    patient: {
+                        ...(city ? { City: city } : {}),
+                        ...(state ? { State: state } : {}),
+                    }
+                } : {}
+                )
+            },
+            orderBy: {
+                Appointment_date: 'desc',
+            },
+            select: {
+                id: true,
+                Appointment_date: true,
+                Time: true,
+                status: true,
+                P_id: true,
+                patient: {
+                    select: {
+                        FullName: true,
+                        Age: true,
+                        Gender: true,
+                        Phone: true,
+                    }
+                }
+            }
+        });
+
+
+        const totalAppointments = await prisma.appointment.count(
+            {
+                where: {
+                    Appointment_date: new Date(today).toISOString()
+                }
+            }
+        );
         const totalPages = Math.ceil(totalAppointments / limit);
 
 
