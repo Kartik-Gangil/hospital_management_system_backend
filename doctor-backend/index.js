@@ -11,7 +11,7 @@ const HOST = process.env.HOST || 'localhost';
 app.use(express.json())
 app.use(cors({
     origin: [
-        "http://43.230.203.230",
+        "http://66.116.204.196",
         "http://localhost:5173",
         "http://localhost:5000",
         "https://modieyehospital-fronted-1.vercel.app", // for production

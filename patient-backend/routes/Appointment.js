@@ -139,6 +139,7 @@ router.get('/allAppointment', async (req, res) => {
                         Age: true,
                         Gender: true,
                         Phone: true,
+                        City: true
                     }
                 }
             }
@@ -224,7 +225,10 @@ router.get('/allTodayAppointment', async (req, res) => {
         let counts = await redisClient.get('appointment_counts');
         if (!counts) {
             const dbCounts = await prisma.appointment.groupBy({
-                by: ['status'],
+                by: ['status', 'Appointment_date'],
+                where: {
+                    Appointment_date: new Date(today).toISOString()
+                },
                 _count: { status: true },
             });
 
@@ -236,7 +240,7 @@ router.get('/allTodayAppointment', async (req, res) => {
         } else {
             counts = JSON.parse(counts);
         }
-
+        console.log(await redisClient.get('appointment_counts'))
         return res.status(200).json({
             currentPage: page,
             totalPages,

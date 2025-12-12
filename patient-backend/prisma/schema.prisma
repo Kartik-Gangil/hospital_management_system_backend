@@ -68,7 +68,7 @@ model Appointment {
   P_id             Int
   patient          Patient      @relation(fields: [P_id], references: [id])
   D_id             String
-  status           String       @default("Pending")
+  status           String       @default("Receptionist")
   Appointment_date DateTime     @db.Date
   Time             String     
   complaint        String?

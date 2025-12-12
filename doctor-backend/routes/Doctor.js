@@ -138,7 +138,6 @@ router.post("/login", async (req, res) => {
         jwt.sign(
             { id: data.id },
             process.env.JWT_SECRET,
-            { expiresIn: "2d" },
             (err, token) => {
                 if (err) {
                     return res.status(500).json({ error: err.message });
