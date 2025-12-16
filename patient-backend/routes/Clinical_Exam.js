@@ -152,4 +152,100 @@ router.post('/posterior/:Pid/:Aid', async (req, res) => {
 
 
 
+router.post('/posteriorDrawing/:Pid', async (req, res) => {
+    const drawingData = req.body;
+    const { Pid } = req.params;
+    if (!Pid) {
+        return res.status(400).json({ error: "Pid is required" });
+    }
+    try {
+        const data = await prisma.patient.update({
+            where: {
+                id: parseInt(Pid)
+            },
+            data: {
+                Posterior_Drawing: drawingData
+            }
+        })
+        return res.status(200).json(data)
+    } catch (error) {
+        console.error(error)
+        return res.status(400).json({ message: "something went wrong", error })
+    }
+});
+
+// API to LOAD the drawing logic for editing
+router.get('/posteriorDrawing/:Pid', async (req, res) => {
+    const { Pid } = req.params;
+    if (!Pid) {
+        return res.status(400).json({ error: "Pid are required" });
+    }
+    try {
+        const data = await prisma.patient.findUnique({
+            where: {
+                id: parseInt(Pid)
+            },
+            select: {
+                Posterior_Drawing: true
+            }
+        })
+        return res.status(200).json(data)
+    } catch (error) {
+        console.error(error)
+        return res.status(400).json({ message: "something went wrong", error })
+    }
+});
+
+
+
+
+
+router.post('/AnteriorDrawing/:Pid', async (req, res) => {
+    const drawingData = req.body;
+    const { Pid } = req.params;
+    if (!Pid) {
+        return res.status(400).json({ error: "Pid are required" });
+    }
+    try {
+        const data = await prisma.patient.update({
+            where: {
+                id: parseInt(Pid)
+            },
+            data: {
+                Anterior_Drawing: drawingData
+            }
+        })
+        return res.status(200).json(data)
+    } catch (error) {
+        console.error(error)
+        return res.status(400).json({ message: "something went wrong", error })
+    }
+});
+
+// API to LOAD the drawing logic for editing
+router.get('/AnteriorDrawing/:Pid', async (req, res) => {
+    const { Pid } = req.params;
+    if (!Pid) {
+        return res.status(400).json({ error: "Pid are required" });
+    }
+    try {
+        const data = await prisma.patient.findUnique({
+            where: {
+               id: parseInt(Pid)
+            },
+            select: {
+                Anterior_Drawing: true
+            }
+        })
+        return res.status(200).json(data)
+    } catch (error) {
+        console.error(error)
+        return res.status(400).json({ message: "something went wrong", error })
+    }
+});
+
+
+
+
+
 module.exports = router;

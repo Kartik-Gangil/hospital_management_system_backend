@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -22,6 +22,7 @@ enum gender {
 }
 
 enum bloodGroup {
+  NULL   @map("null")
   O_NEG  @map("O-")
   O_POS  @map("O+")
   A_POS  @map("A+")
@@ -33,34 +34,36 @@ enum bloodGroup {
 }
 
 model Patient {
-  id             Int           @id @default(autoincrement())
-  FullName       String
-  Gender         gender
-  Phone          String
-  DOB            DateTime      @db.Date
-  Reffered_by    String?
-  Age            String
-  Insurance      String?
-  Address        String
-  City           String
-  State          String
-  created_at     DateTime      @default(now())
-  Blood_group    bloodGroup    @default(O_NEG)
-  Emgr_mobile_no String
-  document       String[]
-  Complaint      Complaint[]
-  Appointment    Appointment[]
-  History        History[]
-  Vision         Vision[]
-  Allergies      Allergies[]
-  Refraction     Refraction[]
-  Anterior       Anterior[]
-  Posterior      Posterior[]
-  Diagnosis      Diagnosis[]
-  Advise         Advise[]
-  Treatment      Treatment[]
-  Medicine       Medicine[]
-  Report         Report[]
+  id                Int           @id @default(autoincrement())
+  FullName          String
+  Gender            gender
+  Phone             String
+  DOB               DateTime      @db.Date
+  Reffered_by       String?
+  Age               String
+  Insurance         String?
+  Address           String
+  City              String
+  State             String
+  created_at        DateTime      @default(now())
+  Blood_group       bloodGroup    @default(O_NEG)
+  Emgr_mobile_no    String
+  Posterior_Drawing Json?
+  Anterior_Drawing  Json?
+  document          String[]
+  Complaint         Complaint[]
+  Appointment       Appointment[]
+  History           History[]
+  Vision            Vision[]
+  Allergies         Allergies[]
+  Refraction        Refraction[]
+  Anterior          Anterior[]
+  Posterior         Posterior[]
+  Diagnosis         Diagnosis[]
+  Advise            Advise[]
+  Treatment         Treatment[]
+  Medicine          Medicine[]
+  Report            Report[]
 }
 
 model Appointment {
@@ -70,7 +73,7 @@ model Appointment {
   D_id             String
   status           String       @default("Receptionist")
   Appointment_date DateTime     @db.Date
-  Time             String     
+  Time             String
   complaint        String?
   created_at       DateTime     @default(now())
   Anterior         Anterior[]
@@ -231,7 +234,6 @@ model Anterior {
   L_Others                       String?
   patientId                      Int
   appointmentId                  String
-  image_file                     String[]
 }
 
 model Posterior {
@@ -317,9 +319,9 @@ model Medicine {
 // report
 
 model Report {
-  id            Int         @id @default(autoincrement())
-  P_id          Patient     @relation(fields: [patientId], references: [id])
-  created_at    DateTime    @default(now())
-  document      Json
-  patientId     Int
+  id         Int      @id @default(autoincrement())
+  P_id       Patient  @relation(fields: [patientId], references: [id])
+  created_at DateTime @default(now())
+  document   Json
+  patientId  Int
 }
