@@ -22,7 +22,7 @@ enum gender {
 }
 
 enum bloodGroup {
-  NULL   @map("null")
+  NULL   @map("NULL")
   O_NEG  @map("O-")
   O_POS  @map("O+")
   A_POS  @map("A+")
@@ -40,30 +40,24 @@ model Patient {
   Phone             String
   DOB               DateTime      @db.Date
   Reffered_by       String?
-  Age               String
+  Branch            String?
+  Age               String?
   Insurance         String?
   Address           String
   City              String
   State             String
   created_at        DateTime      @default(now())
-  Blood_group       bloodGroup    @default(O_NEG)
+  Blood_group       bloodGroup    @default(NULL)
   Emgr_mobile_no    String
   Posterior_Drawing Json?
   Anterior_Drawing  Json?
   document          String[]
-  Complaint         Complaint[]
   Appointment       Appointment[]
-  History           History[]
-  Vision            Vision[]
-  Allergies         Allergies[]
-  Refraction        Refraction[]
-  Anterior          Anterior[]
-  Posterior         Posterior[]
-  Diagnosis         Diagnosis[]
-  Advise            Advise[]
-  Treatment         Treatment[]
-  Medicine          Medicine[]
   Report            Report[]
+  allergies         Allergies[]
+
+  @@index([Phone])
+  @@index([FullName])
 }
 
 model Appointment {
@@ -80,22 +74,22 @@ model Appointment {
   Posterior        Posterior[]
   Refraction       Refraction[]
   Vision           Vision[]
-  Allergies        Allergies[]
   History          History[]
   Complaint        Complaint[]
   Diagnosis        Diagnosis[]
   Advise           Advise[]
   Treatment        Treatment[]
   Medicine         Medicine[]
+
+  @@index([Appointment_date])
+  @@index([P_id])
 }
 
 // pre clinical schemas
 
 model Complaint {
   id            String      @id @default(cuid())
-  A_id          Appointment @relation(fields: [appointmentId], references: [id])
-  P_id          Int
-  patient       Patient     @relation(fields: [P_id], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   D_id          String
   message       String
   appointmentId String
@@ -104,10 +98,8 @@ model Complaint {
 
 model History {
   id                String      @id @default(cuid())
-  A_id              Appointment @relation(fields: [appointmentId], references: [id])
-  patient           Patient     @relation(fields: [P_id], references: [id])
+  appointment       Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   created_at        DateTime    @default(now())
-  P_id              Int
   D_id              String
   Systemic_illness  String
   Treatment_Histroy String
@@ -118,19 +110,16 @@ model History {
 
 model Allergies {
   id            Int         @id @default(autoincrement())
-  A_id          Appointment @relation(fields: [appointmentId], references: [id])
-  P_id          Patient     @relation(fields: [patientId], references: [id])
+  patient       Patient     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId     Int
   created_at    DateTime    @default(now())
   allergies     String[]
-  patientId     Int
-  appointmentId String
 }
 
 model Vision {
   id                                 Int         @id @default(autoincrement())
-  P_id                               Patient     @relation(fields: [patientId], references: [id])
   created_at                         DateTime    @default(now())
-  A_id                               Appointment @relation(fields: [appointmentId], references: [id])
+  appointment                        Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   R_Distance_unaided                 String?
   R_Distance_With_Pin_Hole           String?
   R_Distance_With_CT                 String?
@@ -150,16 +139,13 @@ model Vision {
   L_Near_unaided                     String?
   L_Near_with_previous_glasses       String?
   L_Near_with_current_subjective     String?
-  patientId                          Int
   appointmentId                      String
 }
 
 model Refraction {
   id             Int         @id @default(autoincrement())
-  P_id           Patient     @relation(fields: [patientId], references: [id])
   created_at     DateTime    @default(now())
-  patientId      Int
-  A_id           Appointment @relation(fields: [appointmentId], references: [id])
+  appointment    Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   refractionType String?
 
   R_D_SPH  String?
@@ -191,8 +177,7 @@ model Refraction {
 model Anterior {
   id                             Int         @id @default(autoincrement())
   created_at                     DateTime    @default(now())
-  P_id                           Patient     @relation(fields: [patientId], references: [id])
-  A_id                           Appointment @relation(fields: [appointmentId], references: [id])
+  appointment                    Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   R_Intraocular_pressure_NCT     String?
   R_Intraocular_pressure_Tonopen String?
   R_Intraocular_pressure_AT      String?
@@ -232,15 +217,13 @@ model Anterior {
   L_Lacrimal_syringing           String?
   L_Gonioscopy                   String?
   L_Others                       String?
-  patientId                      Int
   appointmentId                  String
 }
 
 model Posterior {
   id                 Int         @id @default(autoincrement())
   created_at         DateTime    @default(now())
-  P_id               Patient     @relation(fields: [patientId], references: [id])
-  A_id               Appointment @relation(fields: [appointmentId], references: [id])
+  appointment        Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   R_Media            String?
   R_Vitreous         String?
   R_Retina           String?
@@ -255,7 +238,6 @@ model Posterior {
   L_Choroid          String?
   L_Macula           String?
   L_Others           String?
-  patientId          Int
   appointmentId      String
 }
 
@@ -264,13 +246,11 @@ model Posterior {
 model Diagnosis {
   id            Int         @id @default(autoincrement())
   created_at    DateTime    @default(now())
-  P_id          Patient     @relation(fields: [patientId], references: [id])
-  A_id          Appointment @relation(fields: [appointmentId], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   R_eye         String?
   L_eye         String?
   Systemic      String?
   Others        String?
-  patientId     Int
   appointmentId String
 }
 
@@ -278,26 +258,22 @@ model Diagnosis {
 
 model Advise {
   id            Int         @id @default(autoincrement())
-  A_id          Appointment @relation(fields: [appointmentId], references: [id])
-  P_id          Patient     @relation(fields: [patientId], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   created_at    DateTime    @default(now())
   type          String?
   message       String?
   appointmentId String
-  patientId     Int
 }
 
 // treatment
 
 model Treatment {
   id            Int         @id @default(autoincrement())
-  A_id          Appointment @relation(fields: [appointmentId], references: [id])
-  P_id          Patient     @relation(fields: [patientId], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   created_at    DateTime    @default(now())
   type          String?
   message       String?
   appointmentId String
-  patientId     Int
 }
 
 // Medicine
@@ -305,14 +281,12 @@ model Treatment {
 model Medicine {
   id            Int         @id @default(autoincrement())
   created_at    DateTime    @default(now())
-  A_id          Appointment @relation(fields: [appointmentId], references: [id])
-  P_id          Patient     @relation(fields: [patientId], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   Dose          String
   Days          String
   Intake        String
   message       String
   appointmentId String
-  patientId     Int
   medicine      String      @default("")
 }
 

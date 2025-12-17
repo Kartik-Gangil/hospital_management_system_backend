@@ -9,6 +9,8 @@ services:
       POSTGRES_USER: doctor
       POSTGRES_PASSWORD: doctor-db
       POSTGRES_DB: doctordb
+    ports:
+      - 5432:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U doctor -d doctordb"]
       interval: 10s
@@ -25,6 +27,8 @@ services:
       POSTGRES_USER: patient
       POSTGRES_PASSWORD: patient-db
       POSTGRES_DB: patientdb
+    ports:
+      - 5433:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U patient -d patientdb"]
       interval: 10s
@@ -37,6 +41,8 @@ services:
   redis:
     image: redis:7
     container_name: redis
+    ports:
+      - 6379:6379
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

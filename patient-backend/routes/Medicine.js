@@ -2,17 +2,16 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../controller/DB')
 
-router.post("/:Pid/:Aid", async (req, res) => {
+router.post("/:Aid", async (req, res) => {
     try {
-        const { Pid, Aid } = req.params;
+        const {Aid } = req.params;
         const { medicine, Dose,
             Days,
             Intake,
             message, } = req.body;
         const Medicine = await prisma.medicine.create({
             data: {
-                P_id: { connect: { id: parseInt(Pid) } },
-                A_id: { connect: { id: Aid } },
+                appointment: { connect: { id: Aid } },
                 Dose,
                 Days,
                 Intake,

@@ -2,17 +2,17 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../controller/DB')
 
-router.post("/:Pid/:Aid", async (req, res) => {
+router.post("/:Aid", async (req, res) => {
 
     try {
-        const { Pid, Aid } = req.params;
+        const { Aid } = req.params;
         const { R_eye,
             L_eye,
             Systemic,
             Others } = req.body;
 
-        if (!Pid || !Aid) {
-            return res.status(400).json({ error: "Patient ID and Appointment ID are required" })
+        if (!Aid) {
+            return res.status(400).json({ error: "Appointment ID are required" })
         }
         const diagnosis = await prisma.diagnosis.create({
             data: {
@@ -20,7 +20,6 @@ router.post("/:Pid/:Aid", async (req, res) => {
                 L_eye,
                 Systemic,
                 Others,
-                patientId: parseInt(Pid),
                 appointmentId: Aid
             }
         })

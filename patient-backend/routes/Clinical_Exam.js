@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../controller/DB')
 
-router.post('/anterior/:Pid/:Aid', async (req, res) => {
+router.post('/anterior/:Aid', async (req, res) => {
     try {
-        const { Pid, Aid } = req.params;
+        const { Aid } = req.params;
         const { R_Intraocular_pressure_NCT,
             R_Intraocular_pressure_Tonopen,
             R_Intraocular_pressure_AT,
@@ -45,8 +45,8 @@ router.post('/anterior/:Pid/:Aid', async (req, res) => {
             L_Others,
         } = req.body
 
-        if (!Pid || !Aid) {
-            return res.status(400).json({ error: "Pid, Aid are required" });
+        if (!Aid) {
+            return res.status(400).json({ error: " Aid are required" });
         }
         const data = await prisma.anterior.create({
             data: {
@@ -88,7 +88,6 @@ router.post('/anterior/:Pid/:Aid', async (req, res) => {
                 L_Lacrimal_syringing,
                 L_Gonioscopy,
                 L_Others,
-                patientId: parseInt(Pid),
                 appointmentId: Aid
             }
         })
@@ -101,9 +100,9 @@ router.post('/anterior/:Pid/:Aid', async (req, res) => {
 
 
 
-router.post('/posterior/:Pid/:Aid', async (req, res) => {
+router.post('/posterior/:Aid', async (req, res) => {
     try {
-        const { Pid, Aid } = req.params;
+        const {Aid } = req.params;
         const { R_Media,
             R_Vitreous,
             R_Retina,
@@ -120,8 +119,8 @@ router.post('/posterior/:Pid/:Aid', async (req, res) => {
             L_Others
         } = req.body
 
-        if (!Pid || !Aid) {
-            return res.status(400).json({ error: "Pid, Aid are required" });
+        if (!Aid) {
+            return res.status(400).json({ error: " Aid are required" });
         }
         const data = await prisma.posterior.create({
             data: {
@@ -139,7 +138,6 @@ router.post('/posterior/:Pid/:Aid', async (req, res) => {
                 L_Choroid,
                 L_Macula,
                 L_Others,
-                patientId: parseInt(Pid),
                 appointmentId: Aid
             }
         })
@@ -231,7 +229,7 @@ router.get('/AnteriorDrawing/:Pid', async (req, res) => {
     try {
         const data = await prisma.patient.findUnique({
             where: {
-               id: parseInt(Pid)
+                id: parseInt(Pid)
             },
             select: {
                 Anterior_Drawing: true

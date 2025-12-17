@@ -10,10 +10,11 @@ COPY package*.json ./
 RUN npm install
 
 # Copy app source code
-COPY . .
+COPY prisma ./prisma
 
 RUN npx prisma generate 
 
+COPY . .
 # Expose port (adjust if needed)
 EXPOSE 8001
 

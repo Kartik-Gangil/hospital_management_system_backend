@@ -5,13 +5,12 @@ const prisma = require('../controller/DB')
 
 // create complaint
 
-router.post('/createComplaint/:id/:A_id', async (req, res) => {
+router.post('/createComplaint/:A_id', async (req, res) => {
     try {
-        const { id, A_id } = req.params;
+        const { A_id } = req.params;
         const { message, D_id } = req.body;
         const result = await prisma.complaint.create({
             data: {
-                P_id: parseInt(id),
                 D_id,
                 message,
                 appointmentId: A_id
@@ -29,7 +28,7 @@ router.get('/viewComplaint/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const data = await prisma.complaint.findMany({
-            where: { P_id: id }
+            where: { appointmentId: id }
         })
         return res.status(200).json(data)
 
@@ -41,9 +40,9 @@ router.get('/viewComplaint/:id', async (req, res) => {
 
 // create histroy
 
-router.post('/histroy/:id/:A_id', async (req, res) => {
+router.post('/histroy/:A_id', async (req, res) => {
     try {
-        const { id, A_id } = req.params;
+        const { A_id } = req.params;
 
         const { D_id,
             Systemic_illness,
@@ -53,13 +52,12 @@ router.post('/histroy/:id/:A_id', async (req, res) => {
 
         } = req.body
 
-        if (!id || !D_id) {
+        if (!D_id) {
             return res.status(400).json({ error: "appointmentId, P_id, and D_id are required" });
         }
 
         const data = await prisma.history.create({
             data: {
-                P_id: parseInt(id),
                 D_id,
                 Systemic_illness,
                 Treatment_Histroy,
@@ -78,12 +76,12 @@ router.post('/histroy/:id/:A_id', async (req, res) => {
 
 //  allergies
 
-router.post('/allergies/:id/:Aid', async (req, res) => {
+router.post('/allergies/:id', async (req, res) => {
     try {
         let { allergies } = req.body;
-        const { id, Aid } = req.params;
-        if (!id, !Aid) {
-            return res.status(400).json({ error: "appointmentId, P_id are required" });
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ error: " P_id are required" });
 
         }
         if (typeof allergies === "string") {
@@ -94,7 +92,6 @@ router.post('/allergies/:id/:Aid', async (req, res) => {
         const query = await prisma.allergies.findFirst({
             where: {
                 patientId: parseInt(id),
-                appointmentId: Aid
             }
         })
         if (!query) {
@@ -102,7 +99,6 @@ router.post('/allergies/:id/:Aid', async (req, res) => {
                 data: {
                     allergies,
                     patientId: parseInt(id),
-                    appointmentId: Aid
                 }
             })
             return res.status(200).json(data)
@@ -110,7 +106,6 @@ router.post('/allergies/:id/:Aid', async (req, res) => {
         const data = await prisma.allergies.updateMany({
             where: {
                 patientId: parseInt(id),
-                appointmentId: Aid
             },
             data: {
                 allergies,
@@ -125,7 +120,7 @@ router.post('/allergies/:id/:Aid', async (req, res) => {
 })
 // vision
 
-router.post('/vision/:id/:Aid', async (req, res) => {
+router.post('/vision/:Aid', async (req, res) => {
     try {
         const { R_Distance_unaided,
             R_Distance_With_Pin_Hole,
@@ -155,7 +150,7 @@ router.post('/vision/:id/:Aid', async (req, res) => {
 
         const data = await prisma.vision.create({
             data: {
-                patientId: parseInt(id),
+
                 appointmentId: Aid,
                 R_Distance_unaided,
                 R_Distance_With_Pin_Hole,
@@ -186,7 +181,7 @@ router.post('/vision/:id/:Aid', async (req, res) => {
 // refraction
 
 
-router.post('/refraction/:id/:Aid', async (req, res) => {
+router.post('/refraction/:Aid', async (req, res) => {
     try {
         const {
             refractionType,
@@ -209,16 +204,15 @@ router.post('/refraction/:id/:Aid', async (req, res) => {
             Glass_Type,
 
         } = req.body;
-        const { id, Aid } = req.params;
+        const { Aid } = req.params;
 
-        if (!id, !Aid) {
-            return res.status(400).json({ error: "appointmentId, P_id are required" });
+        if (!Aid) {
+            return res.status(400).json({ error: "appointmentId are required" });
 
         }
 
         const data = await prisma.refraction.create({
             data: {
-                patientId: parseInt(id),
                 refractionType,
                 R_D_SPH,
                 R_D_CYL,
