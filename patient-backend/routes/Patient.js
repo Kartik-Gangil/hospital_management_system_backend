@@ -85,7 +85,7 @@ router.get('/:id/:Aid', async (req, res) => {
 
 router.post('/NewPatient', upload.array("files", 10), async (req, res) => {
     try {
-        const { FullName, Gender, Phone, DOB, Reffered_by, Insurance, Address, City, State, Blood_group, Emgr_mobile_no } = req.body;
+        const { FullName, Gender, Phone, DOB, Reffered_by, Insurance, Address, City, State, Blood_group, Emgr_mobile_no, Branch } = req.body;
 
         const filePath = req?.files?.map((file) => file.path)
         const age = Math.floor((new Date().getFullYear() - new Date(DOB).getFullYear())).toString();
@@ -93,6 +93,7 @@ router.post('/NewPatient', upload.array("files", 10), async (req, res) => {
             data: {
                 FullName, Gender, Phone, DOB, Reffered_by,
                 Age: age,
+                Branch,
                 Insurance, Address, City, State, Blood_group, Emgr_mobile_no, document: filePath
             }
         })

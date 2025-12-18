@@ -80,15 +80,15 @@ router.put('/updateStatus/:id', async (req, res) => {
 });
 
 
-router.get('/allPatientCity', async (req, res) => {
+router.get('/allPatientBranch', async (req, res) => {
     try {
-        const cities = await prisma.patient.findMany({
+        const Branch = await prisma.patient.findMany({
             select: {
-                City: true,
+                Branch: true,
             },
-            distinct: ['City'],
+            distinct: ['Branch'],
         });
-        return res.status(200).json(cities);
+        return res.status(200).json(Branch);
     }
     catch (error) {
         console.error(error);
@@ -109,6 +109,7 @@ router.get('/allAppointment', async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const city = req.query.city || null;
         const state = req.query.state || null;
+        const Branch = req.query.Branch || null;
         const designation = req.query.designation || null;
         const skip = (page - 1) * limit;
         const data = await prisma.appointment.findMany({
@@ -116,10 +117,11 @@ router.get('/allAppointment', async (req, res) => {
             take: limit,
             where: {
                 ...(designation ? { status: designation } : {}),
-                ...(city || state ? {
+                ...(city || state || Branch ? {
                     patient: {
                         ...(city ? { City: city } : {}),
                         ...(state ? { State: state } : {}),
+                        ...(Branch ? { Branch: Branch } : {}),
                     }
                 } : {}
                 )
@@ -170,6 +172,7 @@ router.get('/allTodayAppointment', async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const city = req.query.city || null;
         const state = req.query.state || null;
+        const Branch = req.query.Branch || null;
         const designation = req.query.designation || null;
         const skip = (page - 1) * limit;
         // convert the today date hours to 00:00:00 UTC
@@ -181,10 +184,11 @@ router.get('/allTodayAppointment', async (req, res) => {
             where: {
                 Appointment_date: new Date(today).toISOString(),
                 ...(designation ? { status: designation } : {}),
-                ...(city || state ? {
+                ...(city || state || Branch? {
                     patient: {
                         ...(city ? { City: city } : {}),
                         ...(state ? { State: state } : {}),
+                        ...(Branch ? { Branch: Branch } : {}),
                     }
                 } : {}
                 )
@@ -285,5 +289,109 @@ router.get('/AppointmentDetail/:id', async (req, res) => {
         return res.status(500).json({ error: "Something went wrong" });
     }
 });
+
+
+
+
+router.get("/Appointments/search", async (req, res) => {
+    try {
+        const { search } = req.query;
+
+        // 🔹 Pagination (same style as your other API)
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        if (!search) {
+            return res.status(400).json({ error: "Search query required" });
+        }
+
+        let where = {};
+
+        // 🆔 Patient ID (0,1,2...)
+        if (/^\d+$/.test(search) && Number(search) < 100000) {
+            where.patient = { id: Number(search) };
+        }
+
+        // 📞 Phone
+        else if (/^\d{7,15}$/.test(search)) {
+            where.patient = {
+                Phone: { contains: search },
+            };
+        }
+
+        // 📆 Date range
+        else if (/^\d{4}-\d{2}-\d{2}\s+to\s+\d{4}-\d{2}-\d{2}$/.test(search)) {
+            const [from, to] = search.split("to").map(s => s.trim());
+            where.Appointment_date = {
+                gte: new Date(from),
+                lte: new Date(to),
+            };
+        }
+
+        // 🎂 DOB or 📅 Appointment Date
+        else if (/^\d{4}-\d{2}-\d{2}$/.test(search)) {
+            const date = new Date(search);
+            where.OR = [
+                { Appointment_date: date },
+                { patient: { DOB: date } },
+            ];
+        }
+
+        // 🆔 Appointment ID (cuid)
+        else if (search.length > 20) {
+            where.id = search;
+        }
+
+        // 👤 Patient Name
+        else {
+            where.patient = {
+                FullName: {
+                    contains: search,
+                    mode: "insensitive",
+                },
+            };
+        }
+
+        // 🔹 Paginated data
+        const data = await prisma.appointment.findMany({
+            skip,
+            take: limit,
+            where,
+            include: {
+                patient: {
+                    select: {
+                        id: true,
+                        FullName: true,
+                        Phone: true,
+                        DOB: true,
+                        Branch: true,
+                        Gender: true,
+                        Age: true,
+                    },
+                },
+            },
+            orderBy: {
+                Appointment_date: "desc",
+            },
+        });
+
+        // 🔹 Total count for pagination
+        const totalAppointments = await prisma.appointment.count({ where });
+        const totalPages = Math.ceil(totalAppointments / limit);
+
+        return res.status(200).json({
+            data,
+            totalPages,
+            currentPage: page,
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Search failed" });
+    }
+});
+
+
 
 module.exports = router;
