@@ -26,41 +26,20 @@ router.get('/:id/:Aid', async (req, res) => {
             where: { id },
             include: {
                 Appointment: {
-                    // where: { id: Aid },
                     orderBy: {
-                        created_at: 'desc',
+                        Appointment_date: 'desc' //latest appointment first
                     },
                     include: {
-                        Complaint: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        History: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Refraction: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Vision: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Anterior: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Posterior: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Diagnosis: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Advise: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Treatment: {
-                            orderBy: { created_at: 'desc' },
-                        },
-                        Medicine: {
-                            orderBy: { created_at: 'desc' },
-                        },
+                        Complaint: true,
+                        History: true,
+                        Refraction: true,
+                        Vision: true,
+                        Anterior: true,
+                        Posterior: true,
+                        Diagnosis: true,
+                        Advise: true,
+                        Treatment: true,
+                        Medicine: true,
                     },
                 },
                 allergies: true,

@@ -14,13 +14,22 @@ router.post("/:Aid", async (req, res) => {
         if (!Aid) {
             return res.status(400).json({ error: "Appointment ID are required" })
         }
-        const diagnosis = await prisma.diagnosis.create({
-            data: {
+        const diagnosis = await prisma.diagnosis.upsert({
+            where: {
+                appointmentId: Aid
+            },
+            create: {
                 R_eye,
                 L_eye,
                 Systemic,
                 Others,
                 appointmentId: Aid
+            },
+            update: {
+                R_eye,
+                L_eye,
+                Systemic,
+                Others,
             }
         })
         return res.status(200).json(diagnosis)
