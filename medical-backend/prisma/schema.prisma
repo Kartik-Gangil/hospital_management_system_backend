@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Supplier {
+  id            String         @id @default(cuid())
+  name          String
+  address       String
+  phone         String
+  email         String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  gstNo         String
+  DLno          String
+  products      Product[]
+  purchaseBills PurchaseBill[]
+}
+
+model Product {
+  id String @id @default(cuid())
+
+  name       String
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+
+  status   ProductStatus @default(CONTINUE)
+  type     ProductType   @default(NORMAL)
+  itemType ItemType      @default(NORMAL)
+
+  packing       String?
+  unitPrimary   String
+  unitSecondary String?
+
+  mrp          Float @default(0)
+  purchaseRate Float @default(0)
+  rateA        Float @default(0)
+
+  hsnSac     String?
+  gstPercent Float   @default(0)
+
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  purchaseBillItems PurchaseBillItem[]
+  stocks            Stock[]
+
+  // 🔥 IMPORTANT
+  @@unique([name, supplierId])
+}
+
+enum ProductStatus {
+  CONTINUE
+  DISCONTINUE
+}
+
+enum ProductType {
+  NORMAL
+  SERVICE
+}
+
+enum ItemType {
+  NORMAL
+  CONTROLLED
+  SCHEDULED
+}
+
+model PurchaseBill {
+  id          String   @id @default(cuid())
+  invoiceNo   String
+  invoiceDate DateTime
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+
+  totalAmount Float
+  totalGST    Float
+  roundOff    Float
+  netAmount   Float
+
+  createdAt DateTime @default(now())
+
+  items PurchaseBillItem[]
+
+  @@unique([invoiceNo, supplierId])
+}
+
+model PurchaseBillItem {
+  id String @id @default(cuid())
+
+  billId String
+  bill   PurchaseBill @relation(fields: [billId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  batchNo    String
+  expiryDate DateTime
+
+  quantity Int
+  freeQty  Int @default(0)
+
+  purchaseRate Float
+  mrp          Float
+  gstPercent   Float
+
+  taxableAmount Float
+  gstAmount     Float
+  totalAmount   Float
+}
+
+model Stock {
+  id String @id @default(cuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  batchNo    String
+  expiryDate DateTime
+
+  quantity     Int
+  purchaseRate Float
+  mrp          Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, batchNo])
+}

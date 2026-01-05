@@ -21,6 +21,9 @@ config()
 const app = express();
 const PORT = process.env.PORT || 8001;
 const HOST = process.env.HOST || 'localhost';
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use(express.json())
 app.use(cors({
     origin: [

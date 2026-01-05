@@ -1,7 +1,26 @@
 
 
 services:
-  # Database Service for Doctor
+  # Database Service for medical
+
+  medical-db:
+    image: postgres:17
+    container_name: medical-db
+    environment:
+      POSTGRES_USER: medical
+      POSTGRES_PASSWORD: medical-db
+      POSTGRES_DB: medicaldb
+    ports:
+      - 5434:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medical -d medicaldb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - medical_db_data:/var/lib/postgresql/data
+
+  # Database Service for doctor
   doctor-db:
     image: postgres:17
     container_name: doctor-db
@@ -70,6 +89,24 @@ services:
     depends_on:
       doctor-db:
         condition: service_healthy
+  # Backend Service for Medical
+  medical-backend:
+    build:
+      context: ./medical-backend
+      dockerfile: Dockerfile
+    container_name: medical-backend
+    restart: always
+    environment:
+      DATABASE_URL: ${MEDICAL_DATABASE_URL}
+      HOST: 0.0.0.0
+      PORT: 8003
+    command: sh -c "npx prisma migrate deploy && npm start"
+    ports:
+      - "8003:8003"
+      - "5556:5555"
+    depends_on:
+      medical-db:
+        condition: service_healthy
 
   # Backend Service for Patient
   patient-backend:
@@ -107,6 +144,7 @@ services:
     environment:
       DOCTOR_URL: ${DOCTOR_URL}
       PATIENT_URL: ${PATIENT_URL}
+      MEDICAL_URL: ${MEDICAL_URL}
       HOST: 0.0.0.0
       PORT: 5000
     ports:
@@ -121,5 +159,6 @@ services:
 volumes:
   doctor_db_data:
   patient_db_data:
+  medical_db_data:
   doctor_uploads:
   patient_uploads:

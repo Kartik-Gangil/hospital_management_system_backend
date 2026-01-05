@@ -31,6 +31,11 @@ app.use("/patient", createProxyMiddleware({
     changeOrigin: true,
     pathRewrite: { "^/patient": "" },
 }));
+app.use("/medical", createProxyMiddleware({
+    target: process.env.MEDICAL_URL,
+    changeOrigin: true,
+    pathRewrite: { "^/medical": "" },
+}));
 
 app.listen(PORT, HOST, () => {
     console.log("API Gateway running on port 5000");
