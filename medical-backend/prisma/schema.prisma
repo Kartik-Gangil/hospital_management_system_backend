@@ -42,10 +42,32 @@ model Product {
   packing       String?
   unitPrimary   String
   unitSecondary String?
+  askDose       String?
+  decimal       Float   @default(0)
+
+  colorType String?
+  company   String?
+  salt      String?
+  category  String?
+
+  localName   String?
+  centralName String?
+
+  sgst Float @default(0)
+  cgst Float @default(0)
+  igst Float @default(0)
 
   mrp          Float @default(0)
   purchaseRate Float @default(0)
-  rateA        Float @default(0)
+
+  rateA Float @default(0)
+  rateB Float @default(0)
+  rateC Float @default(0)
+  Prate Float @default(0)
+
+  cost     Float @default(0)
+  ConvCASE Float @default(1)
+  ConvCAS  Float @default(1)
 
   hsnSac     String?
   gstPercent Float   @default(0)
@@ -67,6 +89,7 @@ enum ProductStatus {
 enum ProductType {
   NORMAL
   SERVICE
+  DISCONTINUE
 }
 
 enum ItemType {
@@ -136,4 +159,11 @@ model Stock {
   updatedAt DateTime @updatedAt
 
   @@unique([productId, batchNo])
+}
+
+model template {
+  id          String   @id @default(cuid())
+  description Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

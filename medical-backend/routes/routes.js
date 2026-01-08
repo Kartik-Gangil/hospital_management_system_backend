@@ -27,7 +27,7 @@ router.post('/createCompany', async (req, res) => {
 
 router.post('/addMedicine', async (req, res) => {
     try {
-        const { name, status, type, itemType, supplierId, packing, unitPrimary, unitSecondary, mrp, purchaseRate, rateA, hsnSac, gstPercent } = req.body;
+        const { name, status, type, itemType, supplierId, packing, unitPrimary, unitSecondary, mrp, purchaseRate, rateA, rateB, rateC, Prate, cost, ConvCASE, ConvCAS, sgst, igst, cgst, localName, centralName, category, salt, colorType, askDose, company, decimal, hsnSac, gstPercent } = req.body;
         await prisma.product.create({
             data: {
                 name,
@@ -38,6 +38,7 @@ router.post('/addMedicine', async (req, res) => {
                 unitPrimary,
                 unitSecondary,
                 mrp,
+                rateB, rateC, Prate, cost, ConvCASE, ConvCAS, sgst, igst, cgst, localName, centralName, category, salt, colorType, askDose, company, decimal,
                 purchaseRate,
                 rateA,
                 hsnSac,
@@ -129,6 +130,23 @@ router.post('/PurchaseBill', async (req, res) => {
     }
 })
 
+
+router.post('/addTemplate', async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        await prisma.template.create({
+            data: {
+                name,
+                description
+            }
+        })
+        return res.status(201).json({ message: "Template created successfully" });
+    } catch (error) {
+        console.error("Error creating template:", error);
+        return res.status(500).json({ error: "Failed to create template" });
+    }
+})
+
 // get routes
 
 router.get('/getSuppliers', async (req, res) => {
@@ -136,7 +154,7 @@ router.get('/getSuppliers', async (req, res) => {
         const suppliers = await prisma.supplier.findMany({
             select: {
                 id: true,
-                name:true
+                name: true
             }
         });
         return res.status(200).json(suppliers);
@@ -151,13 +169,23 @@ router.get('/getProduct', async (req, res) => {
         const Product = await prisma.product.findMany({
             select: {
                 id: true,
-                name:true
+                name: true
             }
         });
         return res.status(200).json(Product);
     } catch (error) {
         console.error("Error fetching products:", error);
         return res.status(500).json({ error: "Failed to fetch products" });
+    }
+})
+
+router.get('/getTemplates', async (req, res) => { 
+    try {
+        const template = await prisma.template.findMany();
+        return res.status(200).json(template);
+    } catch (error) {
+        console.error("Error fetching template:", error);
+        return res.status(500).json({ error: "Failed to fetch template" });
     }
 })
 

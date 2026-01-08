@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 });
 app.get('/healthz', (_, res) => res.status(200).send('ok'));
 
-app.use('/medical', medicalRoutes);
+app.use('/api', medicalRoutes);
 
 // Additional routes and middleware can be added here
 
