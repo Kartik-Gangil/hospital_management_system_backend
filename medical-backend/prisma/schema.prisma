@@ -58,7 +58,7 @@ model Product {
   igst Float @default(0)
 
   mrp          Float @default(0)
-  purchaseRate Float @default(0)
+  // purchaseRate Float @default(0)
 
   rateA Float @default(0)
   rateB Float @default(0)

@@ -27,7 +27,7 @@ router.post('/createCompany', async (req, res) => {
 
 router.post('/addMedicine', async (req, res) => {
     try {
-        const { name, status, type, itemType, supplierId, packing, unitPrimary, unitSecondary, mrp, purchaseRate, rateA, rateB, rateC, Prate, cost, ConvCASE, ConvCAS, sgst, igst, cgst, localName, centralName, category, salt, colorType, askDose, company, decimal, hsnSac, gstPercent } = req.body;
+        const { name, status, type, itemType, supplierId, packing, unitPrimary, unitSecondary, mrp, rateA, rateB, rateC, Prate, cost, ConvCASE, ConvCAS, sgst, igst, cgst, localName, centralName, category, salt, colorType, askDose, company, decimal, hsnSac } = req.body;
         await prisma.product.create({
             data: {
                 name,
@@ -37,12 +37,27 @@ router.post('/addMedicine', async (req, res) => {
                 packing,
                 unitPrimary,
                 unitSecondary,
-                mrp,
-                rateB, rateC, Prate, cost, ConvCASE, ConvCAS, sgst, igst, cgst, localName, centralName, category, salt, colorType, askDose, company, decimal,
-                purchaseRate,
-                rateA,
+                mrp: parseFloat(mrp),
+                rateB: parseFloat(rateB),
+                rateC: parseFloat(rateC),
+                Prate: parseFloat(Prate),
+                cost: parseFloat(cost),
+                ConvCASE: parseFloat(ConvCASE),
+                ConvCAS: parseFloat(ConvCAS),
+                sgst: parseFloat(sgst),
+                igst: parseFloat(igst),
+                cgst: parseFloat(cgst),
+                decimal: parseInt(decimal),
+                rateA: parseFloat(rateA),
+                // gstPercent: parseFloat(gstPercent),
+                localName,
+                centralName,
+                category,
+                salt,
+                colorType,
+                askDose,
+                company,
                 hsnSac,
-                gstPercent,
                 supplierId
             }
         })
@@ -84,11 +99,11 @@ router.post('/PurchaseBill', async (req, res) => {
                     productId: item.productId,
                     batchNo: item.batchNo,
                     expiryDate: new Date(item.expiryDate),
-                    quantity: item.quantity,
-                    freeQty: item.freeQty || 0,
-                    purchaseRate: item.purchaseRate,
-                    mrp: item.mrp,
-                    gstPercent: item.gstPercent,
+                    quantity: parseInt(item.quantity),
+                    freeQty: parseInt(item.freeQty) || 0,
+                    purchaseRate: parseFloat(item.purchaseRate),
+                    mrp: parseFloat(item.mrp),
+                    gstPercent: parseFloat(item.gstPercent),
                     taxableAmount,
                     gstAmount,
                     totalAmount: total
@@ -179,7 +194,7 @@ router.get('/getProduct', async (req, res) => {
     }
 })
 
-router.get('/getTemplates', async (req, res) => { 
+router.get('/getTemplates', async (req, res) => {
     try {
         const template = await prisma.template.findMany();
         return res.status(200).json(template);
