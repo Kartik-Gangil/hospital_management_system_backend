@@ -56,7 +56,8 @@ model Appointment {
   Treatment        Treatment[]
   Vision           Vision?
 
-  patient          Patient     @relation(fields: [P_id], references: [id])
+  patient Patient @relation(fields: [P_id], references: [id])
+
   @@index([Appointment_date])
   @@index([P_id])
 }
@@ -222,8 +223,9 @@ model Advise {
   created_at    DateTime    @default(now())
   type          String?
   message       String?
-  appointmentId String      
+  appointmentId String
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
   @@index([appointmentId])
 }
 
@@ -232,21 +234,26 @@ model Treatment {
   created_at    DateTime    @default(now())
   type          String?
   message       String?
-  appointmentId String      
+  appointmentId String
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
   @@index([appointmentId])
 }
 
 model Medicine {
   id            Int         @id @default(autoincrement())
+  medicine      String      @default("")
+  eye           String?
+  type          String?
   Dose          String
-  Days          String
+  Duration      String?
+  Days          String // this will remove later after update on prod
   Intake        String
   message       String
-  appointmentId String      
+  appointmentId String
   created_at    DateTime    @default(now())
-  medicine      String      @default("")
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
   @@index([appointmentId])
 }
 
