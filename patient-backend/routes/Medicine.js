@@ -28,10 +28,8 @@ router.post("/:Aid", async (req, res) => {
                         appointment: { connect: { id: Aid } },
                         Dose: item.dose,
                         Duration: item.duration,
-                        Days: '0', // soon remove this field from DB and api
                         eye: item.eye,
                         type: item.type,
-                        Intake: '0', // soon remove this field from DB and api
                         message: item.comment,
                         medicine: item.DrugName
                     }

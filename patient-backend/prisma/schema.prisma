@@ -247,8 +247,6 @@ model Medicine {
   type          String?
   Dose          String
   Duration      String?
-  Days          String // this will remove later after update on prod
-  Intake        String
   message       String
   appointmentId String
   created_at    DateTime    @default(now())
