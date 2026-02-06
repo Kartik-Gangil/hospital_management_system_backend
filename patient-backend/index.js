@@ -12,6 +12,7 @@ const Diagnosis = require('./routes/Diagnosis');
 const Advise = require('./routes/Advise');
 const Treatment = require('./routes/Treatment');
 const Medicine = require('./routes/Medicine');
+const Surgery = require('./routes/Surgery');
 const Update = require('./routes/Update');
 const report = require('./routes/report');
 const { redisSubscriber } = require('./redisClient');
@@ -61,6 +62,7 @@ app.use("/v1/update", Update)
 app.use("/v1/appointment", appointment)
 app.use("/v1/advice", Advise)
 app.use("/v1/Medicine", Medicine)
+app.use("/v1/Surgery", Surgery)
 app.use("/v1/treatment", Treatment)
 app.use("/v1/diagnosis", Diagnosis)
 app.use("/v1/Clinical", Clinical_Exam)

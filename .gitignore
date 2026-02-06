@@ -28,3 +28,6 @@ dist-ssr
 *.sln
 *.sw?
 output
+
+private
+private.pub

@@ -37,23 +37,24 @@ model Patient {
 }
 
 model Appointment {
-  id               String      @id @default(cuid())
+  id               String       @id @default(cuid())
   P_id             Int
   D_id             String
-  Appointment_date DateTime    @db.Date
+  Appointment_date DateTime     @db.Date
   complaint        String?
-  created_at       DateTime    @default(now())
+  created_at       DateTime     @default(now())
   Time             String
-  status           String      @default("Receptionist")
+  status           String       @default("Receptionist")
   Anterior         Anterior?
   Complaint        Complaint?
   Diagnosis        Diagnosis?
   History          History?
   Posterior        Posterior?
-  Refraction       Refraction?
+  Refraction       Refraction[]
   Advise           Advise[]
   Medicine         Medicine[]
   Treatment        Treatment[]
+  Surgery          Surgery[]
   Vision           Vision?
 
   patient Patient @relation(fields: [P_id], references: [id])
@@ -137,8 +138,10 @@ model Refraction {
   L_N_AXIS       String?
   L_N_VA         String?
   Glass_Type     String?
-  appointmentId  String      @unique
+  appointmentId  String
   appointment    Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
 }
 
 model Anterior {
@@ -247,6 +250,18 @@ model Medicine {
   type          String?
   Dose          String
   Duration      String?
+  message       String
+  appointmentId String
+  created_at    DateTime    @default(now())
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+}
+
+model Surgery {
+  id            Int         @id @default(autoincrement())
+  SurgeryName   String
+  eye           String?
   message       String
   appointmentId String
   created_at    DateTime    @default(now())

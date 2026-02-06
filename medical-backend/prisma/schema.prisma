@@ -57,7 +57,7 @@ model Product {
   cgst Float @default(0)
   igst Float @default(0)
 
-  mrp          Float @default(0)
+  mrp Float @default(0)
   // purchaseRate Float @default(0)
 
   rateA Float @default(0)
@@ -103,13 +103,19 @@ model PurchaseBill {
   invoiceNo   String
   invoiceDate DateTime
 
-  supplierId String
-  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId    String
+  supplier      Supplier @relation(fields: [supplierId], references: [id])
+  // ---- Aggregated amounts ----
+  totalAmount   Decimal  @db.Decimal(12, 2)
+  discount      Decimal  @default(0) @db.Decimal(12, 2)
+  taxableAmount Decimal  @default(0) @db.Decimal(12, 2)
 
-  totalAmount Float
-  totalGST    Float
-  roundOff    Float
-  netAmount   Float
+  totalGST    Decimal @db.Decimal(12, 2)
+  cgstPayable Decimal @default(0) @db.Decimal(12, 2)
+  sgstPayable Decimal @default(0) @db.Decimal(12, 2)
+
+  roundOff  Decimal @db.Decimal(12, 2)
+  netAmount Decimal @db.Decimal(12, 2)
 
   createdAt DateTime @default(now())
 
@@ -133,13 +139,13 @@ model PurchaseBillItem {
   quantity Int
   freeQty  Int @default(0)
 
-  purchaseRate Float
-  mrp          Float
-  gstPercent   Float
+  purchaseRate Decimal @db.Decimal(12, 2)
+  mrp          Decimal @db.Decimal(12, 2)
+  gstPercent   Int
 
   taxableAmount Float
-  gstAmount     Float
-  totalAmount   Float
+  gstAmount     Decimal @db.Decimal(12, 2)
+  totalAmount   Decimal @db.Decimal(12, 2)
 }
 
 model Stock {
@@ -167,4 +173,28 @@ model template {
   description Json
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model SaleBill {
+  id            String         @id @default(cuid())
+  Customer_Name String
+  createdAt     DateTime       @default(now())
+  phone         String
+  amount        Decimal        @db.Decimal(12, 2)
+  discount      Decimal        @db.Decimal(12, 2)
+  TotalAmount   Decimal        @db.Decimal(12, 2)
+  items         SaleBillItem[]
+}
+
+model SaleBillItem {
+  id         String   @id @default(cuid())
+  billId     String
+  productId  String
+  quantity   Int
+  itemAmount Decimal  @db.Decimal(12, 2)
+  mrp        Decimal  @db.Decimal(12, 2)
+  // relation
+  bill       SaleBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
 }

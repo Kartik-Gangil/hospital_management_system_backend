@@ -69,31 +69,34 @@ router.post('/addMedicine', async (req, res) => {
     }
 })
 
-
 router.post('/PurchaseBill', async (req, res) => {
-
     const {
         invoiceNo,
         invoiceDate,
         supplierId,
         roundOff = 0,
+        discount = 0,
         items
-    } = req.body
+    } = req.body;
 
     try {
         const result = await prisma.$transaction(async (tx) => {
 
-            let totalAmount = 0
-            let totalGST = 0
+            let totalTaxable = 0;
+            let totalGST = 0;
+            let totalAmount = 0;
 
             // 🔹 Prepare bill items
             const billItemsData = items.map((item) => {
-                const taxableAmount = item.quantity * item.purchaseRate
-                const gstAmount = taxableAmount * (item.gstPercent / 100)
-                const total = taxableAmount + gstAmount
 
-                totalAmount += total
-                totalGST += gstAmount
+                const taxable = item.quantity * item.purchaseRate;
+                const gstAmount = (taxable * item.gstPercent) / 100;
+                const total = taxable + gstAmount;
+
+                // 🔢 accumulate bill totals
+                totalTaxable += taxable;
+                totalGST += gstAmount;
+                totalAmount += total;
 
                 return {
                     productId: item.productId,
@@ -101,14 +104,21 @@ router.post('/PurchaseBill', async (req, res) => {
                     expiryDate: new Date(item.expiryDate),
                     quantity: parseInt(item.quantity),
                     freeQty: parseInt(item.freeQty) || 0,
-                    purchaseRate: parseFloat(item.purchaseRate),
-                    mrp: parseFloat(item.mrp),
-                    gstPercent: parseFloat(item.gstPercent),
-                    taxableAmount,
-                    gstAmount,
-                    totalAmount: total
-                }
-            })
+                    purchaseRate: parseInt(item.purchaseRate),
+                    mrp: parseInt(item.mrp),
+
+                    taxableAmount: parseInt(taxable), // ✅ item-level
+                    gstPercent: parseInt(item.gstPercent),
+                    gstAmount: parseInt(gstAmount),
+                    totalAmount: parseInt(total)
+                };
+            });
+
+            const cgstPayable = totalGST / 2;
+            const sgstPayable = totalGST / 2;
+
+            const netAmount =
+                totalAmount - discount + roundOff;
 
             // 🔹 Create Purchase Bill
             const bill = await tx.purchaseBill.create({
@@ -117,11 +127,14 @@ router.post('/PurchaseBill', async (req, res) => {
                     invoiceDate: new Date(invoiceDate),
                     supplierId,
 
-                    totalAmount,
+                    taxableAmount : totalTaxable,
                     totalGST,
+                    cgstPayable,
+                    sgstPayable,
+                    discount,
                     roundOff,
-                    netAmount: totalAmount + roundOff,
-
+                    netAmount,
+                    totalAmount,
                     items: {
                         create: billItemsData
                     }
@@ -129,22 +142,59 @@ router.post('/PurchaseBill', async (req, res) => {
                 include: {
                     items: true
                 }
-            })
+            });
 
-            return bill
-        })
+            // 🔹 Update Stock
+            for (const item of bill.items) {
+
+                const totalQty = item.quantity + item.freeQty;
+
+                const existingStock = await tx.stock.findUnique({
+                    where: {
+                        productId_batchNo: {
+                            productId: item.productId,
+                            batchNo: item.batchNo
+                        }
+                    }
+                });
+
+                if (existingStock) {
+                    await tx.stock.update({
+                        where: { id: existingStock.id },
+                        data: {
+                            quantity: existingStock.quantity + totalQty,
+                            purchaseRate: item.purchaseRate,
+                            mrp: item.mrp
+                        }
+                    });
+                } else {
+                    await tx.stock.create({
+                        data: {
+                            productId: item.productId,
+                            batchNo: item.batchNo,
+                            expiryDate: item.expiryDate,
+                            quantity: totalQty,
+                            purchaseRate: item.purchaseRate,
+                            mrp: item.mrp
+                        }
+                    });
+                }
+            }
+
+            return bill;
+        });
 
         res.status(201).json({
             success: true,
+            message: "Purchase bill created & stock updated",
             data: result
-        })
-    }
-    catch (error) {
-        console.error("Error creating Product:", error);
-        return res.status(500).json({ error: "Failed to create Product" });
-    }
-})
+        });
 
+    } catch (error) {
+        console.error("Error creating Purchase Bill:", error);
+        res.status(500).json({ error: "Failed to create Purchase Bill" });
+    }
+});
 
 router.post('/addTemplate', async (req, res) => {
     try {
@@ -222,6 +272,97 @@ router.get('/getTemplatesData/:id', async (req, res) => {
         return res.status(500).json({ error: "Failed to fetch template" });
     }
 })
+
+// salebill API
+
+router.post('/saleBill', async (req, res) => {
+    const { name, amount, phone, TotalAmount, discount, items } = req.body;
+
+    try {
+        const result = await prisma.$transaction(async (tx) => {
+
+            // 1️⃣ Create sale bill
+            const saleBill = await tx.saleBill.create({
+                data: {
+                    Customer_Name: name,
+                    amount,
+                    phone,
+                    TotalAmount,
+                    discount
+                }
+            });
+
+            // 2️⃣ Process each product
+            for (const item of items) {
+                let remainingQty = item.quantity;
+
+                // 3️⃣ Fetch stock batches (FEFO)
+                const stocks = await tx.stock.findMany({
+                    where: {
+                        productId: item.productId,
+                        quantity: { gt: 0 }
+                    },
+                    orderBy: {
+                        expiryDate: 'asc'
+                    }
+                });
+
+                const totalAvailable = stocks.reduce(
+                    (sum, s) => sum + s.quantity, 0
+                );
+
+                // ❌ Not enough stock
+                if (totalAvailable < remainingQty) {
+                    throw new Error(
+                        `Insufficient stock for product ${item.productId}`
+                    );
+                }
+
+                // 4️⃣ Deduct batch-wise
+                for (const stock of stocks) {
+                    if (remainingQty === 0) break;
+
+                    const deductQty = Math.min(stock.quantity, remainingQty);
+
+                    await tx.stock.update({
+                        where: { id: stock.id },
+                        data: {
+                            quantity: stock.quantity - deductQty
+                        }
+                    });
+
+                    // 5️⃣ Save sale item (batch-wise)
+                    await tx.saleBillItem.create({
+                        data: {
+                            billId: saleBill.id,
+                            productId: item.productId,
+                            quantity: deductQty,
+                            itemAmount: item.amount,
+                            mrp: parseInt(item.mrp)
+                        }
+                    });
+
+                    remainingQty -= deductQty;
+                }
+            }
+
+            return saleBill;
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Sale completed successfully",
+            data: result
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(400).json({
+            error: error.message
+        });
+    }
+});
+
 
 
 

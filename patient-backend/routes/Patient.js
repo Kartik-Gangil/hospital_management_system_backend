@@ -40,6 +40,7 @@ router.get('/:id/:Aid', async (req, res) => {
                         Advise: true,
                         Treatment: true,
                         Medicine: true,
+                        Surgery: true,
                     },
                 },
                 allergies: true,

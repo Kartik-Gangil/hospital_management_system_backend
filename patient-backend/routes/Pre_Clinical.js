@@ -214,7 +214,7 @@ router.post('/vision/:Aid', async (req, res) => {
                 L_Near_unaided,
                 L_Near_with_previous_glasses,
                 L_Near_with_current_subjective,
-                
+
             },
         })
         return res.status(200).json(data)
@@ -256,31 +256,8 @@ router.post('/refraction/:Aid', async (req, res) => {
 
         }
 
-        const data = await prisma.refraction.upsert({
-            where: {
-                appointmentId: Aid
-            },
-            update: {
-                refractionType,
-                R_D_SPH,
-                R_D_CYL,
-                R_D_AXIS,
-                R_D_VA,
-                R_N_SPH,
-                R_N_CYL,
-                R_N_AXIS,
-                R_N_VA,
-                L_D_SPH,
-                L_D_CYL,
-                L_D_AXIS,
-                L_D_VA,
-                L_N_SPH,
-                L_N_CYL,
-                L_N_AXIS,
-                L_N_VA,
-                Glass_Type,
-            },
-            create: {
+        const data = await prisma.refraction.create({
+            data: {
                 refractionType,
                 R_D_SPH,
                 R_D_CYL,
