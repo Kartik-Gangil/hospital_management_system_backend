@@ -415,5 +415,29 @@ router.put('/Posterior/:Pid', async (req, res) => {
     }
 })
 
+router.put('/surgery/:sid', async (req, res) => {
+    try {
+        const { sid } = req.params;
+        const { SurgeryName, message, eye } = req.body;
+        if (!sid) {
+            return res.status(400).json({ success: false, message: "Surgery ID is required." });
+        }
+        const surgery = await prisma.surgery.update({
+            where: {
+                id: parseInt(sid)
+            },
+            data: {
+                SurgeryName,
+                message,
+                eye
+            }
+        })
+        return res.status(200).json({ message: "successfully updated" })
+
+    } catch (error) {
+        return res.status(500).json({ error })
+    }
+})
+
 
 module.exports = router

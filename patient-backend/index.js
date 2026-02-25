@@ -14,6 +14,7 @@ const Treatment = require('./routes/Treatment');
 const Medicine = require('./routes/Medicine');
 const Surgery = require('./routes/Surgery');
 const Update = require('./routes/Update');
+const Delete = require('./routes/Delete');
 const report = require('./routes/report');
 const { redisSubscriber } = require('./redisClient');
 
@@ -59,6 +60,7 @@ const io = new Server(server, {
 
 
 app.use("/v1/update", Update)
+app.use("/v1/delete", Delete)
 app.use("/v1/appointment", appointment)
 app.use("/v1/advice", Advise)
 app.use("/v1/Medicine", Medicine)
