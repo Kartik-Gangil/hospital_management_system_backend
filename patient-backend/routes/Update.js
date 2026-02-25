@@ -111,10 +111,12 @@ router.put('/Advise/:Aid', async (req, res) => {
 router.put('/Medicine/:Mid', async (req, res) => {
     try {
         const { Mid } = req.params;
-        const { medicine, Dose,
-            Days,
-            Intake,
-            message, } = req.body;
+        const { DrugName,
+            eye,
+            type,
+            Dose,
+            Duration,
+            comment } = req.body;
         if (!Mid) {
             return res.status(400).json({ success: false, message: "Medicine ID is required." });
         }
@@ -123,11 +125,12 @@ router.put('/Medicine/:Mid', async (req, res) => {
                 id: parseInt(Mid)
             },
             data: {
-                medicine,
+                medicine : DrugName,
+                eye,
+                type,
                 Dose,
-                Days,
-                Intake,
-                message
+                Duration,
+                message: comment
             }
         })
         return res.status(200).json({ message: "successfully updated" })
