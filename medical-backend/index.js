@@ -5,7 +5,7 @@ const medicalRoutes = require('./routes/routes');
 const Update = require('./routes/Update')
 const ListAll = require('./routes/ListAll')
 const Delete = require('./routes/Delete')
-const search = require('./routes/search')
+const search = require('./routes/Search')
 
 
 app.use(express.json())
