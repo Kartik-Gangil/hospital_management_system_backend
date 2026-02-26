@@ -5,6 +5,7 @@ const medicalRoutes = require('./routes/routes');
 const Update = require('./routes/Update')
 const ListAll = require('./routes/ListAll')
 const Delete = require('./routes/Delete')
+const search = require('./routes/search')
 
 
 app.use(express.json())
@@ -28,6 +29,7 @@ app.use('/api', medicalRoutes);
 app.use('/api/update', Update);
 app.use('/api/list', ListAll);
 app.use('/api/delete', Delete);
+app.use('/api/search', search);
 
 // Additional routes and middleware can be added here
 

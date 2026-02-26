@@ -37,18 +37,7 @@ router.get('/purchaseBills', async (req, res) => {
     try {
         const bills = await prisma.purchaseBill.findMany({
             include: {
-                items: {
-                    include: {
-                        stock: {
-                            include: {
-                                product: true
-                            }
-                        }
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: 'desc'
+                items: true
             }
         });
 
