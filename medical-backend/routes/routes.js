@@ -234,7 +234,8 @@ router.get('/getProduct', async (req, res) => {
         const Product = await prisma.product.findMany({
             select: {
                 id: true,
-                name: true
+                name: true,
+                mrp:true
             }
         });
         return res.status(200).json(Product);
@@ -338,7 +339,8 @@ router.post('/saleBill', async (req, res) => {
                             productId: item.productId,
                             quantity: deductQty,
                             itemAmount: item.amount,
-                            mrp: parseInt(item.mrp)
+                            mrp: parseInt(item.mrp),
+                            stockId: stock.id
                         }
                     });
 

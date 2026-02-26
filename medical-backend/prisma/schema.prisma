@@ -76,6 +76,7 @@ model Product {
   updatedAt         DateTime           @updatedAt
   purchaseBillItems PurchaseBillItem[]
   stocks            Stock[]
+  saleBillItems     SaleBillItem[]
 
   // 🔥 IMPORTANT
   @@unique([name, supplierId])
@@ -161,8 +162,9 @@ model Stock {
   purchaseRate Float
   mrp          Float
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  saleBillItems SaleBillItem[]
 
   @@unique([productId, batchNo])
 }
@@ -187,14 +189,20 @@ model SaleBill {
 }
 
 model SaleBillItem {
-  id         String   @id @default(cuid())
-  billId     String
-  productId  String
+  id String @id @default(cuid())
+
+  billId    String
+  productId String
+  stockId   String?
+
   quantity   Int
-  itemAmount Decimal  @db.Decimal(12, 2)
-  mrp        Decimal  @db.Decimal(12, 2)
-  // relation
-  bill       SaleBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+  itemAmount Decimal @db.Decimal(12, 2)
+  mrp        Decimal @db.Decimal(12, 2)
+
+  bill    SaleBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+  stock   Stock?    @relation(fields: [stockId], references: [id])
+  product Product  @relation(fields: [productId], references: [id])
 
   @@index([billId])
+  @@index([stockId])
 }
