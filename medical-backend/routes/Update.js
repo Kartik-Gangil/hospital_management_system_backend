@@ -16,6 +16,7 @@ router.put('/saleBill/:id', async (req, res) => {
 
             // 2️⃣ Restore stock EXACTLY
             for (const item of oldItems) {
+                if(!item.stockId) continue; // skip if no stock record
                 await tx.stock.update({
                     where: { id: item.stockId },
                     data: {
@@ -115,12 +116,12 @@ router.put('/saleBill/:id', async (req, res) => {
 router.put('/purchaseBill/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { invoiceDate, supplierId, discount, roundOff, items } = req.body;
+        const { invoiceNo,invoiceDate, supplierId, discount, roundOff, items } = req.body;
 
         const result = await prisma.$transaction(async (tx) => {
             // Fetch existing bill
             const existingBill = await tx.purchaseBill.findUnique({
-                where: { id: parseInt(id) },
+                where: { id: id },
                 include: { items: true }
             });
 
@@ -149,7 +150,7 @@ router.put('/purchaseBill/:id', async (req, res) => {
 
             // Delete old bill items
             await tx.purchaseBillItem.deleteMany({
-                where: { billId: parseInt(id) }
+                where: { billId: id }
             });
 
             // Calculate new totals
@@ -182,7 +183,7 @@ router.put('/purchaseBill/:id', async (req, res) => {
 
             // Update bill
             const updatedBill = await tx.purchaseBill.update({
-                where: { id: parseInt(id) },
+                where: { id: id },
                 data: {
                     invoiceNo,
                     invoiceDate: new Date(invoiceDate),

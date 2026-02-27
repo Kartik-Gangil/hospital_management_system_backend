@@ -129,7 +129,7 @@ model PurchaseBillItem {
   id String @id @default(cuid())
 
   billId String
-  bill   PurchaseBill @relation(fields: [billId], references: [id])
+  bill   PurchaseBill @relation(fields: [billId], references: [id], onDelete: Cascade)
 
   productId String
   product   Product @relation(fields: [productId], references: [id])

@@ -18,8 +18,10 @@ router.delete('/saleBill/:id', async (req, res) => {
                 throw new Error("Sale bill not found");
             }
 
-            // 2️⃣ Restore stock batch-wise
+            // 2️⃣ Restore stock batch-wise (only if stockId exists)
             for (const item of items) {
+                if (!item.stockId) continue;
+
                 await tx.stock.update({
                     where: { id: item.stockId },
                     data: {

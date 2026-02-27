@@ -37,7 +37,11 @@ router.get('/purchaseBills', async (req, res) => {
     try {
         const bills = await prisma.purchaseBill.findMany({
             include: {
-                items: true
+                items: {
+                    include: {
+                        product: true
+                    }
+                }
             }
         });
 
