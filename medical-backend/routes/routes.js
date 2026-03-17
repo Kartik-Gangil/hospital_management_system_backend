@@ -27,37 +27,17 @@ router.post('/createCompany', async (req, res) => {
 
 router.post('/addMedicine', async (req, res) => {
     try {
-        const { name, status, type, itemType, supplierId, packing, unitPrimary, unitSecondary, mrp, rateA, rateB, rateC, Prate, cost, ConvCASE, ConvCAS, sgst, igst, cgst, localName, centralName, category, salt, colorType, askDose, company, decimal, hsnSac } = req.body;
+        const { name,supplierId, packing, mrp, Prate, ConvCASE, sgst, cgst, company } = req.body;
         await prisma.product.create({
             data: {
                 name,
-                status,
-                type,
-                itemType,
                 packing,
-                unitPrimary,
-                unitSecondary,
                 mrp: parseFloat(mrp),
-                rateB: parseFloat(rateB),
-                rateC: parseFloat(rateC),
                 Prate: parseFloat(Prate),
-                cost: parseFloat(cost),
                 ConvCASE: parseFloat(ConvCASE),
-                ConvCAS: parseFloat(ConvCAS),
                 sgst: parseFloat(sgst),
-                igst: parseFloat(igst),
                 cgst: parseFloat(cgst),
-                decimal: parseInt(decimal),
-                rateA: parseFloat(rateA),
-                // gstPercent: parseFloat(gstPercent),
-                localName,
-                centralName,
-                category,
-                salt,
-                colorType,
-                askDose,
                 company,
-                hsnSac,
                 supplierId
             }
         })
