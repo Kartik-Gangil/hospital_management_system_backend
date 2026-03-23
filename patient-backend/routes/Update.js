@@ -125,7 +125,7 @@ router.put('/Medicine/:Mid', async (req, res) => {
                 id: parseInt(Mid)
             },
             data: {
-                medicine : DrugName,
+                medicine: DrugName,
                 eye,
                 type,
                 Dose,
@@ -439,6 +439,31 @@ router.put('/surgery/:sid', async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ error })
+    }
+})
+
+
+router.put('/Patient/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { FullName, Mobile, Gender, DOB, Address } = req.body;
+        const result = await prisma.patient.findUnique({
+            where: {
+                id: parseInt(id)
+            },
+            data: {
+                FullName,
+                Mobile,
+                Gender,
+                DOB,
+                Address
+            }
+        })
+        return res.status(200).json({ result });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ msg: "Something went wrong", error });
     }
 })
 

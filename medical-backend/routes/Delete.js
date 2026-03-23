@@ -124,5 +124,36 @@ router.delete('/purchaseBill/:id', async (req, res) => {
     }
 });
 
+router.delete('/medicine/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await prisma.product.delete({
+            where: {
+                id: id
+            }
+        })
+        return res.status(200).json(data);
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+})
+
+router.delete('/supplier/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await prisma.supplier.delete({
+            where: {
+                id: id
+            }
+        })
+        return res.status(200).json(data);
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+})
 
 module.exports = router;

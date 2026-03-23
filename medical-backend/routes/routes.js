@@ -4,7 +4,7 @@ const prisma = require('../controller/DB')
 
 router.post('/createCompany', async (req, res) => {
     try {
-        const { name, address, phone, email, gstNo, DLno } = req.body;
+        const { name, address, phone, email, gstNo, DLno  } = req.body;
         // Logic to create a company using the provided details
         await prisma.supplier.create({
             data: {
@@ -27,7 +27,7 @@ router.post('/createCompany', async (req, res) => {
 
 router.post('/addMedicine', async (req, res) => {
     try {
-        const { name,supplierId, packing, mrp, Prate, ConvCASE, sgst, cgst, company } = req.body;
+        const { name, supplierId, packing, mrp, Prate, ConvCASE, sgst, cgst, company, Tabs } = req.body;
         await prisma.product.create({
             data: {
                 name,
@@ -38,7 +38,8 @@ router.post('/addMedicine', async (req, res) => {
                 sgst: parseFloat(sgst),
                 cgst: parseFloat(cgst),
                 company,
-                supplierId
+                supplierId,
+                Tabs
             }
         })
         return res.status(201).json({ message: "Product created successfully" });
@@ -197,10 +198,10 @@ router.post('/addTemplate', async (req, res) => {
 router.get('/getSuppliers', async (req, res) => {
     try {
         const suppliers = await prisma.supplier.findMany({
-            select: {
-                id: true,
-                name: true
-            }
+            // select: {
+            //     id: true,
+            //     name: true
+            // }
         });
         return res.status(200).json(suppliers);
     } catch (error) {
@@ -212,10 +213,13 @@ router.get('/getSuppliers', async (req, res) => {
 router.get('/getProduct', async (req, res) => {
     try {
         const Product = await prisma.product.findMany({
-            select: {
-                id: true,
-                name: true,
-                mrp:true
+            // select: {
+            //     id: true,
+            //     name: true,
+            //     mrp:true
+            // }
+            include: {
+                stocks : true
             }
         });
         return res.status(200).json(Product);

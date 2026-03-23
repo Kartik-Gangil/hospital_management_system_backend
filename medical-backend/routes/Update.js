@@ -16,7 +16,7 @@ router.put('/saleBill/:id', async (req, res) => {
 
             // 2️⃣ Restore stock EXACTLY
             for (const item of oldItems) {
-                if(!item.stockId) continue; // skip if no stock record
+                if (!item.stockId) continue; // skip if no stock record
                 await tx.stock.update({
                     where: { id: item.stockId },
                     data: {
@@ -116,7 +116,7 @@ router.put('/saleBill/:id', async (req, res) => {
 router.put('/purchaseBill/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { invoiceNo,invoiceDate, supplierId, discount, roundOff, items } = req.body;
+        const { invoiceNo, invoiceDate, supplierId, discount, roundOff, items } = req.body;
 
         const result = await prisma.$transaction(async (tx) => {
             // Fetch existing bill
@@ -243,5 +243,60 @@ router.put('/purchaseBill/:id', async (req, res) => {
         res.status(400).json({ success: false, error: error.message });
     }
 });
+
+router.put("/supplier/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, address, phone, email, gstNo, DLno } = req.body;
+        await prisma.supplier.update({
+            where: {
+                id: id
+            },
+            data: {
+                name,
+                address,
+                phone,
+                email,
+                gstNo,
+                DLno
+            }
+        });
+        return res.status(201).json({ message: "Supplier updated successfully" });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+})
+
+router.put("/medicine/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, supplierId, packing, mrp, Prate, ConvCASE, sgst, cgst, company, Tabs } = req.body;
+        await prisma.product.update({
+            where: {
+                id:id
+            },
+            data: {
+                name,
+                packing,
+                mrp: parseFloat(mrp),
+                Prate: parseFloat(Prate),
+                ConvCASE: parseFloat(ConvCASE),
+                sgst: parseFloat(sgst),
+                cgst: parseFloat(cgst),
+                company,
+                supplierId,
+                Tabs
+            }
+        })
+        return res.status(201).json({ message: "Product updated successfully" });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+})
+
 
 module.exports = router;

@@ -35,7 +35,7 @@ model Product {
   supplierId String
   supplier   Supplier @relation(fields: [supplierId], references: [id])
 
-  // status   ProductStatus @default(CONTINUE)
+   Tabs       String?        
   // type     ProductType   @default(NORMAL)
   // itemType ItemType      @default(NORMAL)
 

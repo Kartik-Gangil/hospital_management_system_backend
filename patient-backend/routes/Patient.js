@@ -89,6 +89,4 @@ router.post('/NewPatient', upload.array("files", 10), async (req, res) => {
 });
 
 
-
-
 module.exports = router;
