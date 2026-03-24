@@ -4,7 +4,7 @@ const prisma = require('../controller/DB')
 
 router.post('/createCompany', async (req, res) => {
     try {
-        const { name, address, phone, email, gstNo, DLno  } = req.body;
+        const { name, address, phone, email, gstNo, DLno } = req.body;
         // Logic to create a company using the provided details
         await prisma.supplier.create({
             data: {
@@ -87,7 +87,7 @@ router.post('/PurchaseBill', async (req, res) => {
                     freeQty: parseInt(item.freeQty) || 0,
                     purchaseRate: parseInt(item.purchaseRate),
                     mrp: parseInt(item.mrp),
-
+                    pack: parseInt(item.pack),
                     taxableAmount: parseInt(taxable), // ✅ item-level
                     gstPercent: parseInt(item.gstPercent),
                     gstAmount: parseInt(gstAmount),
@@ -108,7 +108,7 @@ router.post('/PurchaseBill', async (req, res) => {
                     invoiceDate: new Date(invoiceDate),
                     supplierId,
 
-                    taxableAmount : totalTaxable,
+                    taxableAmount: totalTaxable,
                     totalGST,
                     cgstPayable,
                     sgstPayable,
@@ -219,7 +219,7 @@ router.get('/getProduct', async (req, res) => {
             //     mrp:true
             // }
             include: {
-                stocks : true
+                stocks: true
             }
         });
         return res.status(200).json(Product);

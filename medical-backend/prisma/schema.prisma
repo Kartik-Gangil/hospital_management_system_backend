@@ -35,18 +35,18 @@ model Product {
   supplierId String
   supplier   Supplier @relation(fields: [supplierId], references: [id])
 
-   Tabs       String?        
+  Tabs String?
   // type     ProductType   @default(NORMAL)
   // itemType ItemType      @default(NORMAL)
 
-  packing       String?
+  packing String?
   // unitPrimary   String
   // unitSecondary String?
   // askDose       String?
   // decimal       Float   @default(0)
 
   // colorType String?
-  company   String?
+  company String?
   // salt      String?
   // category  String?
 
@@ -140,10 +140,10 @@ model PurchaseBillItem {
   quantity Int
   freeQty  Int @default(0)
 
-  purchaseRate Decimal @db.Decimal(12, 2)
-  mrp          Decimal @db.Decimal(12, 2)
-  gstPercent   Int
-
+  purchaseRate  Decimal @db.Decimal(12, 2)
+  mrp           Decimal @db.Decimal(12, 2)
+  gstPercent    Int
+  pack          Int?
   taxableAmount Float
   gstAmount     Decimal @db.Decimal(12, 2)
   totalAmount   Decimal @db.Decimal(12, 2)
@@ -200,7 +200,7 @@ model SaleBillItem {
   mrp        Decimal @db.Decimal(12, 2)
 
   bill    SaleBill @relation(fields: [billId], references: [id], onDelete: Cascade)
-  stock   Stock?    @relation(fields: [stockId], references: [id])
+  stock   Stock?   @relation(fields: [stockId], references: [id])
   product Product  @relation(fields: [productId], references: [id])
 
   @@index([billId])
