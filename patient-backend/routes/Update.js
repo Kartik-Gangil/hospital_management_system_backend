@@ -446,17 +446,22 @@ router.put('/surgery/:sid', async (req, res) => {
 router.put('/Patient/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { FullName, Mobile, Gender, DOB, Address } = req.body;
-        const result = await prisma.patient.findUnique({
+        const { FullName, Phone, Gender, DOB, Address, State, City, Branch, Reffered_by, Insurance } = req.body;
+        const result = await prisma.patient.update({
             where: {
                 id: parseInt(id)
             },
             data: {
                 FullName,
-                Mobile,
+                Phone,
                 Gender,
                 DOB,
-                Address
+                Address,
+                State,
+                City,
+                Branch,
+                Reffered_by,
+                Insurance
             }
         })
         return res.status(200).json({ result });
