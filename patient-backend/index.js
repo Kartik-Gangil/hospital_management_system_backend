@@ -1,4 +1,5 @@
 const express = require('express');
+const cron = require("node-cron");
 const { config } = require('dotenv');
 const cors = require('cors');
 const http = require('http');
@@ -16,7 +17,7 @@ const Surgery = require('./routes/Surgery');
 const Update = require('./routes/Update');
 const Delete = require('./routes/Delete');
 const report = require('./routes/report');
-const { redisSubscriber } = require('./redisClient');
+const { redisSubscriber, redisClient } = require('./redisClient');
 
 // config({ path: path.join(__dirname, '.env') }); // Load env from current directory
 config()
@@ -87,6 +88,20 @@ redisSubscriber.subscribe('appointment_updates', (message) => {
     // console.log(data)
     io.emit('appointmentUpdated', data);
 });
+
+// reset the appointment counts every day at midnight to avoid stale data, in case of any missed updates
+
+async function resetCount() {
+    const counts = JSON.parse(`{ "Reception": 0, "Optical": 0, "Refraction": 0, "Pharmacy": 0, "Pending": 0, "Consultation": 0, "Investigation": 0, "Counselling": 0, "Miscellaneous": 0, "Completed": 0, "Cancelled": 0 }`);
+    await Promise.all([
+        redisClient.set('appointment_counts', JSON.stringify(counts)),
+        redisClient.publish('appointment_updates', JSON.stringify({ result: counts }))
+    ])
+}
+
+cron.schedule("0 0 * * *", () => { 
+    resetCount()
+})
 
 
 server.listen(PORT, HOST, () => console.log(`server is running on port : ${PORT}`))
