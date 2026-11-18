@@ -152,7 +152,6 @@ services:
   - type: keyvalue
     name: redis
     region: singapore
-    plan: starter
 
     # Internal networking only
     ipAllowList: []
