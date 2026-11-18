@@ -1,0 +1,185 @@
+
+# render.yaml
+# Hospital Management System
+# Render Blueprint - Production configuration
+
+services:
+
+  # ---------------------------------
+  # DOCTOR BACKEND
+  # ---------------------------------
+  - type: pserv
+    name: doctor-backend
+    runtime: docker
+    region: singapore
+    plan: starter
+
+    dockerfilePath: ./doctor-backend/Dockerfile
+    dockerContext: ./doctor-backend
+
+    dockerCommand: sh -c "npx prisma migrate deploy && npm start"
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: HOST
+        value: 0.0.0.0
+
+      - key: PORT
+        value: "8000"
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: doctor-db
+          property: connectionString
+
+      - key: JWT_SECRET
+        generateValue: true
+
+    disk:
+      name: doctor-uploads
+      mountPath: /app/uploads
+      sizeGB: 1
+
+
+  # ---------------------------------
+  # PATIENT BACKEND
+  # ---------------------------------
+  - type: pserv
+    name: patient-backend
+    runtime: docker
+    region: singapore
+    plan: starter
+
+    dockerfilePath: ./patient-backend/Dockerfile
+    dockerContext: ./patient-backend
+
+    dockerCommand: sh -c "npx prisma migrate deploy && npm start"
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: HOST
+        value: 0.0.0.0
+
+      - key: PORT
+        value: "8001"
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: patient-db
+          property: connectionString
+
+      - key: REDIS_URL
+        fromService:
+          name: redis
+          type: keyvalue
+          property: connectionString
+
+    disk:
+      name: patient-uploads
+      mountPath: /app/uploads
+      sizeGB: 1
+
+
+  # ---------------------------------
+  # MEDICAL BACKEND
+  # ---------------------------------
+  - type: pserv
+    name: medical-backend
+    runtime: docker
+    region: singapore
+    plan: starter
+
+    dockerfilePath: ./medical-backend/Dockerfile
+    dockerContext: ./medical-backend
+
+    dockerCommand: sh -c "npx prisma migrate deploy && npm start"
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: HOST
+        value: 0.0.0.0
+
+      - key: PORT
+        value: "8003"
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medical-db
+          property: connectionString
+
+
+  # ---------------------------------
+  # PROXY SERVER
+  # ---------------------------------
+  - type: web
+    name: proxy-server
+    runtime: docker
+    region: singapore
+    plan: starter
+
+    dockerfilePath: ./proxyServer/Dockerfile
+    dockerContext: ./proxyServer
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: HOST
+        value: 0.0.0.0
+
+      - key: PORT
+        value: "5000"
+
+      - key: DOCTOR_URL
+        value: http://doctor-backend:8000
+
+      - key: PATIENT_URL
+        value: http://patient-backend:8001
+
+      - key: MEDICAL_URL
+        value: http://medical-backend:8003
+
+
+  # ---------------------------------
+  # REDIS
+  # ---------------------------------
+  - type: keyvalue
+    name: redis
+    region: singapore
+    plan: starter
+
+    # Internal networking only
+    ipAllowList: []
+
+
+# ---------------------------------
+# POSTGRESQL DATABASES
+# ---------------------------------
+databases:
+
+  - name: doctor-db
+    region: singapore
+    postgresMajorVersion: "17"
+    databaseName: doctordb
+    user: doctor
+    ipAllowList: []
+
+  - name: patient-db
+    region: singapore
+    postgresMajorVersion: "17"
+    databaseName: patientdb
+    user: patient
+    ipAllowList: []
+
+  - name: medical-db
+    region: singapore
+    postgresMajorVersion: "17"
+    databaseName: medicaldb
+    user: medical
+    ipAllowList: []
